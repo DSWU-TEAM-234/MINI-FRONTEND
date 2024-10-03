@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import Categories from './Categories';
@@ -19,13 +18,14 @@ function Home() {
 
   return (
     <div className="Home">
-      <Header openSidebar={openSidebar} />
+      {/* Header는 App.js에서 렌더링되므로 제거 */}
       <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} />
       <div className="banner">
         <h2>배너</h2>
       </div>
       <Categories />
-      <PopularPosts/>
+      <PopularPosts />
+      {/* Footer는 유지 */}
       <Footer />
     </div>
   );

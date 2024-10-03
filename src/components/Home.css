@@ -20,23 +20,6 @@
 .category-button:hover {
   background-color: #e0e0e0;
 }
-  
-.navbar {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 20px;
-}
-  
-.menu-icon, .search-icon {
-cursor: pointer;
-}
-
-.links {
-display: flex;
-justify-content: space-around;
-padding: 10px 0;
-}
 
 .banner {
 background-color: #61dafb;
