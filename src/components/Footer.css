@@ -12,3 +12,16 @@
     left: 0; /* 화면의 왼쪽 끝에서 시작하도록 설정 */
     right: 0; /* 화면의 오른쪽 끝까지 차지 */
 }
+
+.footer-menu {
+    color: white; /* 기본 글자 색상 */
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* 클릭하거나 활성화되었을 때 색상 유지 */
+.footer-menu:active,
+.footer-menu:focus {
+    color: white; /* 활성화 또는 클릭 상태에서도 하얀색 유지 */
+    outline: none; /* 클릭했을 때 생기는 외곽선 제거 */
+}

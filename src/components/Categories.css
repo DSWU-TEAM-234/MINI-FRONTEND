@@ -1,25 +1,25 @@
 .categories-container {
     display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
+    flex-wrap: wrap; /* 버튼이 화면을 벗어나면 다음 줄로 이동 */
+    gap: 10px; /* 버튼들 사이 간격 */
+    padding: 10px;
   }
   
-  .category-item {
+  .category-button {
+    flex-shrink: 0; /* 버튼 크기 고정 */
+    width: 140px; /* 버튼 너비 설정 */
+    height: 60px; /* 납작한 직사각형 높이 설정 */
+    font-size: 1em; /* 글씨 크기 설정 */
+    
     cursor: pointer;
-    padding: 10px 15px;
-    font-size: 1.1em;
-    color: grey;
-    border-bottom: 2px solid transparent;
-    transition: color 0.3s, border-bottom 0.3s;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    transition: background-color 0.3s;
+    text-align: center; /* 텍스트 중앙 정렬 */
   }
   
-  .category-item:hover {
-    color: black;
+  .category-button:hover {
+    background-color: #f0f0f0;
   }
-  
-  .category-item.active {
-    color: black;
-    border-bottom: 2px solid black; /* 선택된 카테고리 밑줄 */
-  }
-  
   

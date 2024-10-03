@@ -38,4 +38,10 @@
   .right-section {
     margin-left: auto;
   }
+
+  .menu-icon {
+  cursor: pointer; /* 손 모양의 커서로 변경 */
+  font-size: 20px;
+}
+
   
