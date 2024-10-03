@@ -1,0 +1,25 @@
+.categories-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+  }
+  
+  .category-item {
+    cursor: pointer;
+    padding: 10px 15px;
+    font-size: 1.1em;
+    color: grey;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s, border-bottom 0.3s;
+  }
+  
+  .category-item:hover {
+    color: black;
+  }
+  
+  .category-item.active {
+    color: black;
+    border-bottom: 2px solid black; /* 선택된 카테고리 밑줄 */
+  }
+  
+  

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Header.css';
 
 function Header({ openSidebar }) {
   const [activeTab, setActiveTab] = useState('중고'); // 기본값을 '중고'로 설정

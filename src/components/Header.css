@@ -1,0 +1,46 @@
+.App-header {
+    background-color: #282c34;
+    color: white;
+}
+
+.links {
+    display: flex;
+    justify-content: flex-start; /* 왼쪽 정렬 유지 */
+    align-items: center; /* 수직 중앙 정렬 */
+    margin-left: 30px; /* 왼쪽에 추가 여유 공간 */
+    padding-right: 20px; /* 오른쪽에 여유 공간 추가 */
+}
+
+.links span {
+    margin-right: 15px; /* 버튼 사이 간격 추가 */
+    cursor: pointer;
+    padding-bottom: 10px; /* 밑줄 표시를 위한 패딩 추가 */
+    font-weight: normal; /* 기본 글씨 굵기 */
+}
+
+.links .active {
+    border-bottom: 2px solid white; /* 선택된 버튼 밑줄 하얀색 */
+    font-weight: bold; /* 선택된 버튼 글씨 굵게 */
+    margin-bottom: -10px; /* 밑줄을 하단 경계선에 가깝게 위치 */
+}
+
+.right-section {
+    margin-left: auto; /* 오른쪽으로 밀어줌 */
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+    
+.menu-icon, .search-icon {
+    cursor: pointer;
+}
+
+.links {
+    display: flex;
+    justify-content: flex-start; /* 왼쪽 정렬 */
+    padding: 10px 0;
+}
