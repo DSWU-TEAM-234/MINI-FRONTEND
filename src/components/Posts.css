@@ -1,4 +1,4 @@
-.popular-posts-container {
+.posts-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개의 글을 표시 */
     gap: 20px; /* 카드 간 간격 */

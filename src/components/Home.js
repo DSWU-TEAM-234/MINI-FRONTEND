@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 import Footer from './Footer';
 import Categories from './Categories';
 import './Home.css';
-import PopularPosts from './PopularPosts';
+import Posts from './Posts';
 
 function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -24,7 +24,7 @@ function Home() {
         <h2>배너</h2>
       </div>
       <Categories />
-      <PopularPosts />
+      <Posts />
       {/* Footer는 유지 */}
       <Footer />
     </div>

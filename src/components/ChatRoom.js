@@ -17,6 +17,26 @@ function ChatRoom() {
     // DB에서 가져온 데이터로 교체 가능
   };
 
+  const [messages, setMessages] = useState([
+    { sender: 'other', text: '안녕하세요, 반갑습니다!' }
+  ]); // 메시지 목록 상태
+  const [inputMessage, setInputMessage] = useState(""); // 입력된 메시지 상태
+
+  // 메시지 전송 함수
+  const sendMessage = () => {
+    if (inputMessage.trim() !== "") {
+      const newMessage = { sender: 'me', text: inputMessage }; // 내 메시지로 추가
+      setMessages([...messages, newMessage]); // 메시지 목록에 새 메시지 추가
+      setInputMessage(""); // 입력 칸 초기화
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      sendMessage(); // 엔터 키를 눌렀을 때 메시지 전송
+    }
+  };
+
   const room = chatRooms[chatRoomId] || { nickname: '알 수 없는 사용자' };
 
   return (
@@ -28,13 +48,27 @@ function ChatRoom() {
 
       <div className="chat-content">
         {/* 메시지 목록이 들어갈 부분 */}
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`message-bubble ${msg.sender === 'me' ? 'my-message' : 'other-message'}`}
+          >
+            {msg.text}
+          </div>
+        ))}
       </div>
 
       <div className={`message-menu-container ${isMenuOpen ? 'menu-open' : ''}`}>
         <div className="message-input">
           <button className="plus-button" onClick={toggleMenu}>+</button>
-          <input type="text" placeholder="메시지를 입력하세요..." />
-          <button>보내기</button>
+          <input
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)} // 입력값 업데이트
+            onKeyPress={handleKeyPress} // 엔터 키 감지
+            placeholder="메시지를 입력하세요..."
+          />
+          <button onClick={sendMessage}>보내기</button>
         </div>
       </div>
 

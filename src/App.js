@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './global.css';
 import Home from './components/Home'; // 메인 페이지
-import AgencyPage from './components/AgencyPage'; // 대리 페이지
+import ProxyPurchasePage from './components/ProxyPurchasePage'; // 대리 페이지
 import Footer from './components/Footer';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -30,10 +30,10 @@ function Layout() {
   return (
     <div className="App">
       {/* 헤더는 메인 페이지와 대리 페이지에서만 표시 */}
-      {(location.pathname === '/' || location.pathname === '/agency') && <Header openSidebar={openSidebar} />}
+      {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && <Header openSidebar={openSidebar} />}
       
       {/* 사이드바 추가 (메인 페이지와 대리 페이지에서도 표시됨) */}
-      {(location.pathname === '/' || location.pathname === '/agency') && (
+      {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && (
         <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} />
         )}
 
@@ -42,7 +42,7 @@ function Layout() {
         {/* 메인 홈 페이지 */}
         <Route path="/" element={<Home />} />
         {/* 대리 페이지 */}
-        <Route path="/agency" element={<AgencyPage />} />
+        <Route path="/ProxyPurchase" element={<ProxyPurchasePage />} />
         <Route path="/category/:categoryName" element={<CategoryDetail />} /> {/* 카테고리 상세 페이지 경로 */}
         <Route path="/chat" element={<ChatPage />} /> {/* 채팅 상세 페이지 경로 */}
         <Route path="/write" element={<WritePage />} /> {/* 글쓰기 상세 페이지 경로 */}

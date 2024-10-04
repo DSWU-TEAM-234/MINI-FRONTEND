@@ -26,7 +26,7 @@ function Header({ openSidebar }) {  // props로 openSidebar 함수 받음
         </Link>
 
         <Link
-          to="/agency"
+          to="/ProxyPurchase"
           className={activeTab === '대리' ? 'active' : ''}
           onClick={() => handleClick('대리')}
         >

@@ -30,7 +30,7 @@
 
 .chat-content {
   flex: 1;
-  padding: 20px;
+  padding: 70px 20px 20px; /* 헤더 높이만큼 상단 패딩 추가 */
   overflow-y: auto;
   background-color: #fafafa;
 }
@@ -55,6 +55,7 @@
 .menu-open .message-input {
   margin-bottom: 100px; /* 하단 메뉴를 위한 공간 확보 */
 }
+
 
 .message-input {
   display: flex;
@@ -82,6 +83,33 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.message-bubble {
+  padding: 10px 15px;
+  margin: 10px 0;
+  background-color: #007bff;
+  color: white;
+  border-radius: 15px;
+  max-width: 70%;
+  word-wrap: break-word;
+  display: block;
+}
+
+/* 나의 메시지를 오른쪽에 정렬 */
+.my-message {
+  background-color: #007bff;
+  color: white;
+  margin-left: auto; /* 오른쪽에 배치 */
+  text-align: left;
+}
+
+/* 상대방의 메시지를 왼쪽에 정렬 */
+.other-message {
+  background-color: #e0e0e0;
+  color: black;
+  margin-right: auto; /* 왼쪽에 배치 */
+  text-align: left;
 }
 
 .plus-button {

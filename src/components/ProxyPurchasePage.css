@@ -1,0 +1,48 @@
+.proxy-purchase-page {
+    padding: 20px;
+  }
+  
+  .item-scroll-container {
+    display: flex;
+    overflow-x: auto; /* 가로 스크롤 가능 */
+    gap: 15px; /* 블럭 간의 간격 */
+    padding: 10px 0;
+    scrollbar-width: none; /* 파이어폭스에서 스크롤바 숨기기 */
+    -ms-overflow-style: none;  /* IE and Edge에서 스크롤바 숨기기 */
+  }
+  
+  .item-scroll-container::-webkit-scrollbar {
+    display: none; /* 크롬, 사파리에서 스크롤바 숨기기 */
+  }
+  
+  .item-block {
+    min-width: 150px; /* 블럭 크기 설정 */
+    height: 200px; /* 고정 높이 설정 */
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .item-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+  
+  .item-name {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  
+  .item-price {
+    margin-top: 5px;
+    color: #888;
+  }
+  
