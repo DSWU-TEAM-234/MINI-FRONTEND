@@ -24,7 +24,7 @@ function CategoryDetail() {
         &lt;
       </button>
 
-      <h2>{translatedCategory} 카테고리 상세 페이지</h2>
+      <h2 className="category-name" >{translatedCategory} 카테고리 상세 페이지</h2>
       <p>여기에 {translatedCategory}에 대한 상세 정보가 표시됩니다.</p>
 
       {/* Footer 추가 */}

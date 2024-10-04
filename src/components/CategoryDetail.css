@@ -13,7 +13,7 @@
     left: 20px;
   }
   
-  h2 {
+  .category-name {
     margin-top: 60px; /* 돌아가기 버튼과의 간격 */
   }
   

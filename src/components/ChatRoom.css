@@ -1,0 +1,127 @@
+.chat-room-detail {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.chat-back-button {
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.chat-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #fafafa;
+}
+
+.chat-room-detail .nickname {
+  flex-grow: 1; /* 사용자 이름이 나머지 공간을 차지하게 함 */
+  text-align: center; /* 사용자 이름을 중앙에 배치 */
+  font-weight: bold;
+}
+
+.message-menu-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #ddd;
+  transition: height 0.3s ease;
+}
+
+/* 하단 메뉴가 있을 때 메시지 전송 칸을 위로 이동 */
+.menu-open .message-input {
+  margin-bottom: 100px; /* 하단 메뉴를 위한 공간 확보 */
+}
+
+.message-input {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background-color: #ffffff;
+  border-top: 1px solid #ddd;
+  z-index: 3; 
+  transition: margin 0.3s ease; /* 부드럽게 위로 이동 */
+}
+
+.message-input input {
+  flex: 1;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.message-input button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.plus-button {
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* 하단 메뉴 */
+.bottom-menu {
+  display: flex;
+  justify-content: space-around;
+  padding: 50px;
+  animation: slideUp 0.3s ease-in-out;
+  height: auto; /* 메뉴의 높이를 자동으로 설정 */
+  z-index: 1;
+}
+
+.menu-item {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* 애니메이션 */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* 메뉴가 열렸을 때의 상태 */
+.menu-open {
+  height: auto; /* 메뉴가 포함된 높이 */
+}
