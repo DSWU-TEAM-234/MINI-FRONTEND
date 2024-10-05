@@ -39,6 +39,10 @@ function ChatRoom() {
 
   const room = chatRooms[chatRoomId] || { nickname: '알 수 없는 사용자' };
 
+  const handleDressUpClick = () => {
+    navigate('/dress-up-game'); // DressUpGame으로 이동
+  };
+
   return (
     <div className="chat-room-detail">
       <div className="chat-header">
@@ -76,7 +80,7 @@ function ChatRoom() {
       {isMenuOpen && (
         <div className="bottom-menu">
           <button className="menu-item">위치 공유</button>
-          <button className="menu-item">착장 공유</button>
+          <button className="menu-item" onClick={handleDressUpClick}>착장 공유</button>
         </div>
       )}
 

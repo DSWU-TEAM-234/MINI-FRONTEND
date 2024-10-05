@@ -11,6 +11,8 @@ import ChatPage from './components/ChatPage'; // 채팅 상세 페이지
 import WritePage from './components/WritePage'; // 글쓰기 상세 페이지
 import MyPage from './components/MyPage'; // 마이페이지 상세 페이지
 import ChatRoom from './components/ChatRoom'; // 이전 ChatDetailPage를 ChatRoom으로 수정
+import PostDetail from './components/PostDetail';
+import DressUpGame from './components/DressUpGame';
 
 function Layout() {
   const location = useLocation(); // 현재 경로를 확인
@@ -24,8 +26,8 @@ function Layout() {
     setIsSidebarOpen(false);
   };
 
-   // 채팅방 상세 페이지에서만 푸터를 숨기기 위한 조건
-   const hideFooter = location.pathname.startsWith('/chat/');
+   // 푸터를 숨겨야 하는 조건 (채팅방 상세 페이지 또는 DressUpGame 페이지)
+  const hideFooter = location.pathname.startsWith('/chat/') || location.pathname === '/dress-up-game';
 
   return (
     <div className="App">
@@ -48,6 +50,8 @@ function Layout() {
         <Route path="/write" element={<WritePage />} /> {/* 글쓰기 상세 페이지 경로 */}
         <Route path="/mypage" element={<MyPage />} /> {/* 마이페이지 상세 페이지 경로 */}
         <Route path="/chat/:chatRoomId" element={<ChatRoom />} /> {/* 채팅방 상세 페이지 경로 */}
+        <Route path="/posts/:id" element={<PostDetail />} /> {/* 게시글 상세 페이지 */}
+        <Route path="/dress-up-game" element={<DressUpGame />} /> {/* DressUpGame 페이지 */}
       </Routes>
       
       {/* 채팅방 상세 페이지에서는 푸터 숨김 */}

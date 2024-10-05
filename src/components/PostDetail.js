@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // 리액트 라우터 사용
-import './Posts.css';
+import { useParams } from 'react-router-dom';
 
 const items = [
   { id: 1, image: 'https://via.placeholder.com/150', title: '중고 아이폰 11', price: '₩500,000' },
@@ -11,22 +10,22 @@ const items = [
   { id: 6, image: 'https://via.placeholder.com/150', title: '중고 가방', price: '₩60,000' }
 ];
 
-function Posts() {
+function PostDetail() {
+  const { id } = useParams(); // URL에서 id 파라미터 추출
+  const post = items.find(item => item.id === parseInt(id));
+
+  if (!post) {
+    return <div>게시글을 찾을 수 없습니다.</div>;
+  }
+
   return (
-    <div className="posts-container">
-      {items.map(item => (
-        <Link to={`/posts/${item.id}`} key={item.id} className="post-link">
-          <div className="post-card">
-            <img src={item.image} alt={item.title} className="post-image" />
-            <h3 className="post-title">{item.title}</h3>
-            <p className="post-price">{item.price}</p>
-          </div>
-        </Link>
-      ))}
+    <div>
+      <h2>{post.title}</h2>
+      <img src={post.image} alt={post.title} />
+      <p>가격: {post.price}</p>
+      <p>게시글 상세 내용이 여기에 표시됩니다...</p>
     </div>
   );
 }
 
-export default Posts;
-
-
+export default PostDetail;

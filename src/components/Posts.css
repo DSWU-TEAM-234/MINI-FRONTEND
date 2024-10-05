@@ -35,3 +35,13 @@
     margin-bottom: 10px;
   }
   
+  .post-link {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit; /* 링크 색상 변경 방지 */
+  }
+  
+  .post-link:hover {
+    text-decoration: none; /* 호버 시에도 밑줄 제거 */
+    color: inherit; /* 호버 시에도 색상 유지 */
+  }
+  
