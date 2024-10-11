@@ -29,20 +29,23 @@ function Layout() {
    // 푸터를 숨겨야 하는 조건 (채팅방 상세 페이지 또는 DressUpGame 페이지)
   const hideFooter = location.pathname.startsWith('/chat/') || location.pathname === '/dress-up-game';
 
+  const [selectedUniversity, setSelectedUniversity] = useState('덕성여자대학교');  // 선택된 대학
+  const [mainPageColor, setMainPageColor] = useState('#8b2842');  // 메인 페이지 색상
+
   return (
     <div className="App">
       {/* 헤더는 메인 페이지와 대리 페이지에서만 표시 */}
-      {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && <Header openSidebar={openSidebar} />}
+      {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && <Header openSidebar={openSidebar} university={selectedUniversity} mainPageColor={mainPageColor} />}
       
-      {/* 사이드바 추가 (메인 페이지와 대리 페이지에서도 표시됨) */}
+      {/* 사이드바 (메인 페이지와 대리 페이지에서도 표시됨) */}
       {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && (
-        <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} />
+        <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} setSelectedUniversity={setSelectedUniversity} setMainPageColor={setMainPageColor}/>
         )}
 
 
       <Routes>
         {/* 메인 홈 페이지 */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home mainPageColor={mainPageColor}/>} />
         {/* 대리 페이지 */}
         <Route path="/ProxyPurchase" element={<ProxyPurchasePage />} />
         <Route path="/category/:categoryName" element={<CategoryDetail />} /> {/* 카테고리 상세 페이지 경로 */}
@@ -55,7 +58,7 @@ function Layout() {
       </Routes>
       
       {/* 채팅방 상세 페이지에서는 푸터 숨김 */}
-      {!hideFooter && <Footer />}
+      {!hideFooter && <Footer mainPageColor={mainPageColor} />}
     </div>
   );
 }
