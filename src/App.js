@@ -11,10 +11,7 @@ import PostDetail from './components/PostDetail';
 
 import Chat from './components/Chat';
 
-import Write from './components/Write'; //이미지,제목,카테고리,가격,설명,거래방식,작성시각
-// import Post from './components/Post';  글수정?
-// import PostDetail from './components/PostDetail';  //거래상태,찜개수
-// import PostList from './components/PostList';
+import Write from './components/Write'; 
 
 import MyPage from './components/MyPage';
 import Login from './components/Login';
