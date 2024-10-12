@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './Header.css';
 
 function Header({ openSidebar, university,mainPageColor }) {  // props로 openSidebar 함수 받음
+  // eslint-disable-next-line
   const [activeTab, setActiveTab] = useState('중고'); // 기본값을 '중고'로 설정
 
   const handleClick = (tab) => {
@@ -10,7 +11,7 @@ function Header({ openSidebar, university,mainPageColor }) {  // props로 openSi
   };
 
 
-
+//eslint-disable-line no-unused-vars
   return (
     <header className="App-header"  style={{ backgroundColor: mainPageColor }}>
       <div className="navbar">

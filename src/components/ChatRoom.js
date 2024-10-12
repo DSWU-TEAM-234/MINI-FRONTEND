@@ -1,15 +1,91 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
+import useWebSocket from "../hooks/useWebSocket"
+import useChatRoom from "../hooks/useChatRoom"
+import Modal from "./Modal"
+import MessageBubble from "./MessageBubble"
+import MapContainer from "./MapContainer"
+import ChatHeader from "./ChatHeader"
+import ChatInput from "./ChatInput"
+import BottomMenu from "./BottomMenu"
 
 function ChatRoom() {
   const { chatRoomId } = useParams(); // URL에서 chatRoomId를 가져옴
   const navigate = useNavigate();
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen); // 메뉴 열기/닫기 상태 토글
-  };
+  const {
+    messages,
+    sendMessage,
+    sendLocation,
+    sendRealTimeLocation,
+    realTimeLocation,
+  } = useWebSocket(chatRoomId)
+
+  const {
+    isMenuOpen,
+    inputMessage,
+    setInputMessage,
+    isModalOpen,
+    setIsModalOpen,
+    location,
+    isMapModalOpen,
+    viewLocationModal,
+    isLoading,
+    myRealTimeLocation,
+    otherRealTimeLocation,
+    toggleMenu,
+    handleSendMessage,
+    handleShareLocation,
+    handleConfirmLocation,
+    handleViewLocation,
+    handleCloseModal,
+    handleCloseMapModal,
+    handleCloseViewLocationModal,
+    setOtherRealTimeLocation,
+  } = useChatRoom(chatRoomId, sendMessage, sendLocation, sendRealTimeLocation)
+
+
+  React.useEffect(() => {
+    if (realTimeLocation) {
+      setOtherRealTimeLocation(realTimeLocation.location)
+    }
+  }, [realTimeLocation, setOtherRealTimeLocation])
+
+  const modalButtons = [
+    {
+      text: "확인했어요",
+      onClick: handleConfirmLocation,
+      className: "confirm-button",
+      disabled: isLoading,
+    },
+    {
+      text: "안할래요",
+      onClick: handleCloseModal,
+      className: "cancel-button",
+    },
+  ]
+
+  const mapModalButtons = [
+    {
+      text: "위치 공유하기",
+      onClick: handleShareLocation,
+      className: "share-location-button",
+    },
+    {
+      text: "닫기",
+      onClick: handleCloseMapModal,
+      className: "close-button",
+    },
+  ]
+
+  const viewLocationModalButtons = [
+    {
+      text: "닫기",
+      onClick: handleCloseViewLocationModal,
+      className: "close-button",
+    },
+  ]
 
   const chatRooms = {
     1: { nickname: '사용자1' },
@@ -17,29 +93,6 @@ function ChatRoom() {
     // DB에서 가져온 데이터로 교체 가능
   };
 
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'user1', text: 'Hello!', time: '10:45 AM' },
-    { id: 2, sender: 'me', text: 'Hi!', time: '10:46 AM' }
-  ]); // 메시지 목록 상태
-  const [inputMessage, setInputMessage] = useState(""); // 입력된 메시지 상태
-
-  //실제 현재 시간 저장
-  const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-  // 메시지 전송 함수
-  const sendMessage = () => {
-    if (inputMessage.trim() !== "") {
-      const newMessage = { sender: 'me', text: inputMessage, time: currentTime }; // 내 메시지로 추가
-      setMessages([...messages, newMessage]); // 메시지 목록에 새 메시지 추가
-      setInputMessage(""); // 입력 칸 초기화
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      sendMessage(); // 엔터 키를 눌렀을 때 메시지 전송
-    }
-  };
 
   const room = chatRooms[chatRoomId] || { nickname: '알 수 없는 사용자' };
 
@@ -49,6 +102,7 @@ function ChatRoom() {
 
   return (
     <div className="chat-room-detail">
+      <ChatHeader chatRoomId={chatRoomId} />
       <div className="chat-header">
         <button className="chat-back-button" onClick={() => navigate(-1)}>&lt;</button>
         <span className="nickname">{room.nickname}</span>
@@ -57,41 +111,66 @@ function ChatRoom() {
       <div className="chat-content">
         {/* 메시지 목록이 들어갈 부분 */}
         {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`message-bubble ${msg.sender === 'me' ? 'my-message' : 'other-message'}`}
-          >
-            {msg.text}
-            <small className={`${msg.sender === 'me' ? 'my-message-time' : 'other-message-time'}`}>
-              {msg.time}</small> {/* 시간 표시 */}
-          </div>
+          <MessageBubble
+          key={index}
+          message={msg}
+          onViewLocation={handleViewLocation}
+        />
+          // <div
+          //   key={index}
+          //   className={`message-bubble ${msg.sender === 'me' ? 'my-message' : 'other-message'}`}
+          // >
+          //   {msg.text}
+          //   <small className={`${msg.sender === 'me' ? 'my-message-time' : 'other-message-time'}`}>
+          //     {msg.time}</small> {/* 시간 표시 */}
+          // </div>
         ))}
       </div>
 
-      <div className={`message-menu-container ${isMenuOpen ? 'menu-open' : ''}`}>
-        <div className="message-input">
-          <button className="plus-button" onClick={toggleMenu}>+</button>
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)} // 입력값 업데이트
-            onKeyPress={handleKeyPress} // 엔터 키 감지
-            placeholder="메시지를 입력하세요..."
-          />
-          <button onClick={sendMessage}>보내기</button>
-        </div>
-      </div>
+      <ChatInput
+        inputMessage={inputMessage}
+        setInputMessage={setInputMessage}
+        handleSendMessage={handleSendMessage}
+        toggleMenu={toggleMenu}
+        isMenuOpen={isMenuOpen}
+      />
+      
+      
+      <BottomMenu isMenuOpen={isMenuOpen} setIsModalOpen={setIsModalOpen} />
+      
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        buttons={modalButtons}
+      >
+        {isLoading ? (
+          <p>위치 불러오는 중...</p>
+        ) : (
+          <p>인증을 위해 위치를 공유할게요. 동의하시나요?</p>
+        )}
+      </Modal>
 
-      {/* 하단 메뉴 (위치 공유, 착장 공유) */}
-      {isMenuOpen && (
-        <div className="bottom-menu">
-          <button className="menu-item">위치 공유</button>
-          <button className="menu-item" onClick={handleDressUpClick}>착장 공유</button>
-        </div>
-      )}
+      <Modal
+        isOpen={isMapModalOpen}
+        onClose={handleCloseMapModal}
+        buttons={mapModalButtons}
+      >
+        <MapContainer title="내 위치 인증하기" myLocation={location} />
+      </Modal>
 
+      <Modal
+        isOpen={viewLocationModal.isOpen}
+        onClose={handleCloseViewLocationModal}
+        buttons={viewLocationModalButtons}
+      >
+        <MapContainer
+          title="실시간 위치"
+          myLocation={myRealTimeLocation}
+          otherLocation={otherRealTimeLocation}
+        />
+      </Modal>
     </div>
-  );
+  )
 }
 
 export default ChatRoom;
