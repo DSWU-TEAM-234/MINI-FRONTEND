@@ -91,7 +91,7 @@
   background-color: #007bff;
   color: white;
   border-radius: 15px;
-  max-width: 70%;
+  max-width: 60%;
   word-wrap: break-word;
   display: block;
 }
@@ -152,4 +152,20 @@
 /* 메뉴가 열렸을 때의 상태 */
 .menu-open {
   height: auto; /* 메뉴가 포함된 높이 */
+}
+
+.my-message-time {
+  display: block;
+  font-size: 0.8em;
+  color: #e6e6e6;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.other-message-time {
+  display: block;
+  font-size: 0.8em;
+  color: #6d6d6d;
+  margin-top: 5px;
+  text-align: right;
 }

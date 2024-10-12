@@ -8,6 +8,9 @@ const items = [
   { id: 3, image: 'https://via.placeholder.com/150', title: '중고 자전거', price: '₩150,000' },
   { id: 4, image: 'https://via.placeholder.com/150', title: '중고 책상', price: '₩30,000' },
   { id: 5, image: 'https://via.placeholder.com/150', title: '중고 의자', price: '₩40,000' },
+  { id: 6, image: 'https://via.placeholder.com/150', title: '중고 가방', price: '₩60,000' },
+  { id: 6, image: 'https://via.placeholder.com/150', title: '중고 가방', price: '₩60,000' },
+  { id: 6, image: 'https://via.placeholder.com/150', title: '중고 가방', price: '₩60,000' },
   { id: 6, image: 'https://via.placeholder.com/150', title: '중고 가방', price: '₩60,000' }
 ];
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom'; // useNavigate 가져오기
 import Footer from './Footer'; // Footer를 추가
 import './CategoryDetail.css';
+import Posts from './Posts';
 
 const categoryTranslations = {
   dolls: '인형',
@@ -25,7 +26,7 @@ function CategoryDetail() {
       </button>
 
       <h2 className="category-name" >{translatedCategory} 카테고리 상세 페이지</h2>
-      <p>여기에 {translatedCategory}에 대한 상세 정보가 표시됩니다.</p>
+      <Posts />
 
       {/* Footer 추가 */}
       <Footer />

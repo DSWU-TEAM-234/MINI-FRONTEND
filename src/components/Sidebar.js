@@ -50,6 +50,8 @@ function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPa
         });
     }, []);*/
 
+   
+
   // 대학 목록을 ㄱ ㄴ ㄷ 순으로 정렬
   const sortedUniversities = universities.sort((a, b) => a.localeCompare(b, 'ko'));
 
@@ -73,6 +75,7 @@ function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPa
     '덕성여자대학교' : '#8b2842'
   };
   
+  
 
   //사이드바 필터에서 대학 클릭을 감지했을 때 작동
   const handleUniversityClick = (university) => {
@@ -82,20 +85,34 @@ function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPa
     setMainPageColor(newColor);
   }
 
+  //검색창 데이터
+  const [searchTerm, setSearchTerm] = useState("");
+
   return (
     <>
       {isSidebarOpen && (
         <div className="sidebar-background" onClick={handleClickOutside}>
           <div className="sidebar">
           <div className="sidebar-header">
-            <input type="text" placeholder="대학교 검색" className="search-input" />
+            {/*검색창에 입력하면 입력된 데이터가 searchTerm에 저장*/}
+            <input type="text" placeholder="대학교 검색" className="search-input"
+             onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }} />
             <div className="close-icon" onClick={closeSidebar}>X</div>
           </div>
           <ul className="sidebar-menu">
             {Object.keys(groupedUniversities).map((initial) => (
               <div key={initial}>
                 <li className="initial">{initial}</li> {/* 초성 표시 */}
-                {groupedUniversities[initial].map((university, index) => (
+                {/*필터함수로 검색기능 구현*/}
+                {groupedUniversities[initial].filter((university)=>{
+                  if(searchTerm === ""){
+                    return university
+                  }else if(searchTerm.includes(university)){
+                    return university
+                  }
+                }).map((university, index) => (
                   <li key={index} className="university-name" onClick={()=>handleUniversityClick(university)}>{university}</li>
                 ))}
               </div>

@@ -18,14 +18,18 @@ function ChatRoom() {
   };
 
   const [messages, setMessages] = useState([
-    { sender: 'other', text: '안녕하세요, 반갑습니다!' }
+    { id: 1, sender: 'user1', text: 'Hello!', time: '10:45 AM' },
+    { id: 2, sender: 'me', text: 'Hi!', time: '10:46 AM' }
   ]); // 메시지 목록 상태
   const [inputMessage, setInputMessage] = useState(""); // 입력된 메시지 상태
 
+  //실제 현재 시간 저장
+  const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
   // 메시지 전송 함수
   const sendMessage = () => {
     if (inputMessage.trim() !== "") {
-      const newMessage = { sender: 'me', text: inputMessage }; // 내 메시지로 추가
+      const newMessage = { sender: 'me', text: inputMessage, time: currentTime }; // 내 메시지로 추가
       setMessages([...messages, newMessage]); // 메시지 목록에 새 메시지 추가
       setInputMessage(""); // 입력 칸 초기화
     }
@@ -58,6 +62,8 @@ function ChatRoom() {
             className={`message-bubble ${msg.sender === 'me' ? 'my-message' : 'other-message'}`}
           >
             {msg.text}
+            <small className={`${msg.sender === 'me' ? 'my-message-time' : 'other-message-time'}`}>
+              {msg.time}</small> {/* 시간 표시 */}
           </div>
         ))}
       </div>
