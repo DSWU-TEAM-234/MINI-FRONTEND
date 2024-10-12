@@ -1,0 +1,107 @@
+/* MyPage.css */
+
+.my-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    display: flex; /* Flexbox 사용 */
+    align-items: center; /* 수직 중앙 정렬 */
+    text-align: left; /* 좌측 정렬 */
+    margin-bottom: 30px;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #007bff;
+    margin-right: 15px; /* 이미지와 텍스트 사이 여백 추가 */
+}
+
+h2 {
+    color: #333;
+    margin: 0; /* 기본 마진 제거 */
+    text-align: left; /* 좌측 정렬 */
+}
+
+.content-container {
+    margin-bottom: 30px;
+}
+
+.trade-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.wishlist, .order-history {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 0 10px;
+    flex: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    color: #555;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    text-align: left; /* 좌측 정렬 */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    text-align: left; /* 좌측 정렬 */
+}
+
+li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eaeaea;
+    text-align: left; /* 좌측 정렬 */
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.additional-sections {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.additional-sections ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start; /* 왼쪽 정렬 유지 */
+}
+
+.additional-sections li {
+    text-align: left; /* 좌측 정렬 */
+}
