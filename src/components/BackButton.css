@@ -1,0 +1,15 @@
+.back-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    position: absolute; /* 절대 위치 설정 */
+    top: 20px; /* 상단 여백 */
+    left: 20px; /* 좌측 여백 */
+  }
+  
+  .back-button:hover {
+    background-color: #0056b3;
+  }

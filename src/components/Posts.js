@@ -1,7 +1,7 @@
 import React from 'react';
-import './PopularPosts.css'; // 스타일을 위한 CSS 파일
+import { Link } from 'react-router-dom';
+import './Posts.css';
 
-// 예시 데이터
 const items = [
   { id: 1, image: 'https://via.placeholder.com/150', title: '중고 아이폰 11', price: '₩500,000' },
   { id: 2, image: 'https://via.placeholder.com/150', title: '중고 노트북', price: '₩800,000' },
@@ -11,18 +11,18 @@ const items = [
   { id: 6, image: 'https://via.placeholder.com/150', title: '중고 가방', price: '₩60,000' }
 ];
 
-function PopularPosts() {
+function Posts() {
   return (
-    <div className="popular-posts-container">
+    <div className="posts-container">
       {items.map(item => (
-        <div key={item.id} className="post-card">
+        <Link key={item.id} to={`/posts/${item.id}`} className="post-card">
           <img src={item.image} alt={item.title} className="post-image" />
           <h3 className="post-title">{item.title}</h3>
           <p className="post-price">{item.price}</p>
-        </div>
+        </Link>
       ))}
     </div>
   );
 }
 
-export default PopularPosts;
+export default Posts;

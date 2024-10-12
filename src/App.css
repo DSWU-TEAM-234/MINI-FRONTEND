@@ -140,5 +140,14 @@
   }
   
 
+  .links span, .links a {
+    color: white; /* 글자색을 흰색으로 설정 */
+    text-decoration: none; /* 밑줄 제거 */
+    padding: 10px; /* 클릭 영역을 넓히기 위한 패딩 */
+  }
+  
+  .links span.active, .links a.active {
+    font-weight: bold; /* 활성화된 버튼은 굵게 표시 */
+  }
   
   

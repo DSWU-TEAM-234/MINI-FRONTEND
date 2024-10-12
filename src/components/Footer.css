@@ -1,0 +1,25 @@
+/* Footer.css */
+
+.App-footer {
+    background-color: #282c34; /* 배경색 */
+    color: white; /* 기본 글자색 */
+    text-align: center; /* 중앙 정렬 */
+    padding: 20px; /* 안쪽 여백 */
+    position: relative; /* 위치 설정 */
+    bottom: 0; /* 아래쪽 고정 */
+    width: 100%; /* 너비 100% */
+}
+
+.footer-menu {
+    color: white; /* 기본 링크 색상을 흰색으로 변경 */
+    text-decoration: none; /* 밑줄 제거 */
+    margin: 0 10px; /* 좌우 여백 추가 */
+}
+
+.footer-menu:visited {
+    color: white; /* 방문한 링크 색상도 흰색으로 변경 */
+}
+
+.footer-menu:hover {
+    color: white; /* 호버 시 색상도 흰색으로 설정 */
+}
