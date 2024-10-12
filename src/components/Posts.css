@@ -1,4 +1,4 @@
-.popular-posts-container {
+.posts-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개의 글을 표시 */
     gap: 20px; /* 카드 간 간격 */
@@ -33,5 +33,15 @@
     color: green;
     font-size: 1em;
     margin-bottom: 10px;
+  }
+  
+  .post-link {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit; /* 링크 색상 변경 방지 */
+  }
+  
+  .post-link:hover {
+    text-decoration: none; /* 호버 시에도 밑줄 제거 */
+    color: inherit; /* 호버 시에도 색상 유지 */
   }
   

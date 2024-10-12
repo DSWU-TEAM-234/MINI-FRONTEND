@@ -1,0 +1,56 @@
+.chat-room-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 채팅방 간의 간격 */
+    border-top: 1px solid #ddd;
+    padding: 15px;
+  }
+  
+  .chat-room {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    width: 100%; /* 화면 너비에 맞게 크기 조정 */
+    max-width: 100%; /* 창 크기에 맞춰 조정 */
+    height: auto; /* 높이를 자동으로 설정 */
+    min-height: 60px; /* 최소 높이 설정 */
+    box-sizing: border-box;
+    text-decoration: none;  /* 밑줄 제거 */
+    color: inherit;  /* 색상 상속 */
+  }
+  
+  .chat-room a {
+    text-decoration: none ; /* 링크 밑줄 제거 */
+    color: inherit; /* 링크 색상 상속 */
+  }
+
+  .profile-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+  }
+  
+  .chat-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    flex-grow: 1; /* 유연하게 공간을 차지 */
+  }
+  
+  .nickname {
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-decoration: none ; /* 밑줄 제거 */
+    color: inherit ; /* 색상 상속 */
+  }
+  
+  .last-message {
+    color: #888;
+    font-size: 0.9em;
+    text-decoration: none ; /* 밑줄 제거 */
+    color: inherit ; /* 색상 상속 */
+  }

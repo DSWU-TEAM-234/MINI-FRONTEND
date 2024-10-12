@@ -1,7 +1,6 @@
 import React from 'react';
-import './PopularPosts.css'; // 스타일을 위한 CSS 파일
+import { useParams } from 'react-router-dom';
 
-// 예시 데이터
 const items = [
   { id: 1, image: 'https://via.placeholder.com/150', title: '중고 아이폰 11', price: '₩500,000' },
   { id: 2, image: 'https://via.placeholder.com/150', title: '중고 노트북', price: '₩800,000' },
@@ -11,18 +10,22 @@ const items = [
   { id: 6, image: 'https://via.placeholder.com/150', title: '중고 가방', price: '₩60,000' }
 ];
 
-function PopularPosts() {
+function PostDetail() {
+  const { id } = useParams(); // URL에서 id 파라미터 추출
+  const post = items.find(item => item.id === parseInt(id));
+
+  if (!post) {
+    return <div>게시글을 찾을 수 없습니다.</div>;
+  }
+
   return (
-    <div className="popular-posts-container">
-      {items.map(item => (
-        <div key={item.id} className="post-card">
-          <img src={item.image} alt={item.title} className="post-image" />
-          <h3 className="post-title">{item.title}</h3>
-          <p className="post-price">{item.price}</p>
-        </div>
-      ))}
+    <div>
+      <h2>{post.title}</h2>
+      <img src={post.image} alt={post.title} />
+      <p>가격: {post.price}</p>
+      <p>게시글 상세 내용이 여기에 표시됩니다...</p>
     </div>
   );
 }
 
-export default PopularPosts;
+export default PostDetail;

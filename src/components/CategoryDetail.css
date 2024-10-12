@@ -1,0 +1,23 @@
+.category-detail {
+    padding: 20px;
+  }
+  
+  .back-button {
+    font-size: 24px;
+    border: none;
+    background: none;
+    color: black;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
+  
+  .category-name {
+    margin-top: 60px; /* 돌아가기 버튼과의 간격 */
+  }
+  
+  p {
+    margin: 20px 0;
+  }
+  

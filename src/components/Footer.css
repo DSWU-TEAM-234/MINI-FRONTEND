@@ -1,0 +1,27 @@
+.App-footer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center; /* 수직 중앙 정렬 */
+    padding: 10px;
+    background-color: #282c34;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%; /* 화면 전체 너비를 차지하도록 설정 */
+    box-sizing: border-box; /* 패딩을 포함한 전체 너비 계산 */
+    left: 0; /* 화면의 왼쪽 끝에서 시작하도록 설정 */
+    right: 0; /* 화면의 오른쪽 끝까지 차지 */
+}
+
+.footer-menu {
+    color: white; /* 기본 글자 색상 */
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* 클릭하거나 활성화되었을 때 색상 유지 */
+.footer-menu:active,
+.footer-menu:focus {
+    color: white; /* 활성화 또는 클릭 상태에서도 하얀색 유지 */
+    outline: none; /* 클릭했을 때 생기는 외곽선 제거 */
+}

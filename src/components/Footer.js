@@ -1,12 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import './Footer.css';
 
-function Footer() {
+function Footer({mainPageColor}) {
   return (
-    <footer className="App-footer">
-      <div className="footer-menu">홈</div>
-      <div className="footer-menu">채팅</div>
-      <div className="footer-menu">글쓰기</div>
-      <div className="footer-menu">마이페이지</div>
+    <footer className="App-footer" style={{ backgroundColor: mainPageColor }}>
+      <Link to="/" className="footer-menu">홈</Link>
+      <Link to="/chat" className="footer-menu">채팅</Link>
+      <Link to="/write" className="footer-menu">글쓰기</Link>
+      <Link to="/mypage" className="footer-menu">마이페이지</Link>
     </footer>
   );
 }

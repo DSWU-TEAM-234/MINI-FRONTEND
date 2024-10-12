@@ -1,37 +1,42 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import './Header.css';
 
-function Header({ openSidebar }) {
+function Header({ openSidebar, university,mainPageColor }) {  // props로 openSidebar 함수 받음
   const [activeTab, setActiveTab] = useState('중고'); // 기본값을 '중고'로 설정
 
   const handleClick = (tab) => {
     setActiveTab(tab); // 클릭된 버튼을 active로 설정
   };
 
+
+
   return (
-    <header className="App-header">
+    <header className="App-header"  style={{ backgroundColor: mainPageColor }}>
       <div className="navbar">
-        <div className="menu-icon" onClick={openSidebar}>☰</div>
+        <div className="menu-icon" onClick={openSidebar}>☰</div> {/* props로 받은 openSidebar 사용 */}
         <div className="app-name">앱 이름</div>
         <div className="search-icon">🔍</div>
       </div>
       <div className="links">
-        {/* 중고 버튼 기본적으로 밑줄 표시 */}
-        <span
+        <Link
+          to="/"
           className={activeTab === '중고' ? 'active' : ''}
           onClick={() => handleClick('중고')}
         >
           중고
-        </span>
-        {/* 대리 버튼 클릭 시 밑줄 표시 */}
-        <span
+        </Link>
+
+        <Link
+          to="/ProxyPurchase"
           className={activeTab === '대리' ? 'active' : ''}
           onClick={() => handleClick('대리')}
         >
           대리
-        </span>
-        {/* 00대학교 오른쪽으로 이동 */}
+        </Link>
+
         <div className="right-section">
-          <span>00대학교</span>
+          <span>{university}</span>
         </div>
       </div>
     </header>
