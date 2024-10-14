@@ -17,19 +17,18 @@ const categoryTranslations = {
   souvenirs: '기념소품',
 };
 
-function CategoryDetail({postType}) {
+function CategoryDetail({postType, selectedUniversity, postData ,setPostData}) {
   const navigate = useNavigate(); // 이전 페이지로 돌아가는 함수
 
 
   const { categoryName } = useParams(); // URL에서 카테고리 이름을 가져옴
   const translatedCategory = categoryTranslations[categoryName] || categoryName;
 
-  const [postData, setPostData] = useState([]);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/posts_by_category/${categoryName}`)
+    axios.get(`http://localhost:5000/posts_by_category/${selectedUniversity}/${categoryName}`)
       .then(response => {
-        setPostData(response.data);  // 서버에서 받은 데이터를 상태로 저장
+        setPostData(response.data.posts);  // 서버에서 받은 데이터를 상태로 저장
       })
       .catch(error => {
         console.error('Error fetching post data:', error);
@@ -37,7 +36,10 @@ function CategoryDetail({postType}) {
   }, []);
 
   //게시물 종류 구분
-  const posts = postData.filter(post => post.post_type === postType);
+  const posts = postData.length > 0 
+  ? postData.filter(post => post.post_type === postType)
+  : [];
+
   
 
   return (

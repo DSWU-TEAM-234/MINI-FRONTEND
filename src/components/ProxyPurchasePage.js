@@ -1,19 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useRef ,useEffect, useState } from 'react';
 import './ProxyPurchasePage.css';
 import Categories from './Categories';
 import Posts from './Posts';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-const ProxyPurchasePage = () => {
+const ProxyPurchasePage = ({selectedUniversity, setPostData, postData}) => {
   const scrollContainerRef = useRef(null); // 스크롤 컨테이너 참조
-
-  const items = [
-    { id: 1, name: '물건 1', price: '₩10,000', image: 'image-url-1' },
-    { id: 2, name: '물건 2', price: '₩15,000', image: 'image-url-2' },
-    { id: 3, name: '물건 3', price: '₩20,000', image: 'image-url-3' },
-    { id: 4, name: '물건 4', price: '₩25,000', image: 'image-url-4' },
-    { id: 5, name: '물건 5', price: '₩30,000', image: 'image-url-5' }
-  ];
 
   // 드래그로 스크롤
   const handleMouseDown = (e) => {
@@ -37,6 +30,35 @@ const ProxyPurchasePage = () => {
     container.isDown = false;
   };
 
+  const [itemData, setItemData] = useState([]);
+
+  useEffect(() => {
+    axios.get(`http://localhost:5000/ProxyPurchase_posts_by_university_name/${selectedUniversity}`)
+      .then(response => {
+        console.log('Response Data:', response.data.posts);  // 응답 데이터 확인
+        setPostData(response.data.posts)
+      })
+      .catch(error => {
+        console.error('Error fetching universities:', error);  // 오류 메시지 확인
+        console.error(error.response);  // 추가적인 응답 정보 확인
+    });
+}, [selectedUniversity]);
+
+
+useEffect(() => {
+  setPostData([]);
+  axios.get(`http://localhost:5000/get_goods_by_university/${selectedUniversity}`)
+    .then(response => {
+      console.log('Response Data:', response.data.goods_list);  // 응답 데이터 확인
+      setItemData(response.data.goods_list)
+    })
+    .catch(error => {
+      console.error('Error fetching universities:', error);  // 오류 메시지 확인
+      console.error(error.response);  // 추가적인 응답 정보 확인
+  });
+}, [selectedUniversity]);
+
+
   return (
     <div className="proxy-purchase-page">
 
@@ -49,11 +71,11 @@ const ProxyPurchasePage = () => {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {items.map((item) => (
+        {itemData.map((item) => (
           
           <div key={item.id} className="item-block">
-            <img src={item.image} alt={item.name} className="item-image" />
-            <div className="item-name">{item.name}</div>
+            <img src={item.image} alt={item.item_name} className="item-image" />
+            <div className="item-name">{item.item_name}</div>
             <div className="item-price">{item.price}</div>
           </div>
           
@@ -65,7 +87,7 @@ const ProxyPurchasePage = () => {
 
       <h3 style={{ padding: '20px' }}>최신글</h3>
       {/* 최신글 섹션 */}
-      <Posts />
+      <Posts postData={postData} />
     </div>
   );
 };

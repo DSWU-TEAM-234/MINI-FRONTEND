@@ -11,7 +11,7 @@ const categories = [
 ];
 
 
-function Categories({post_type}) {
+function Categories() {
   return (
     <div className="categories-container">
       {categories.map((category) => (

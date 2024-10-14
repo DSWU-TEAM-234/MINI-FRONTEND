@@ -17,6 +17,7 @@
   
   .post-card:hover {
     transform: scale(1.05); /* 마우스를 올렸을 때 약간 확대 */
+    z-index:1;
   }
   
   .post-image {

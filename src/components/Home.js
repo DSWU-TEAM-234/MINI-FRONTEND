@@ -7,9 +7,9 @@ import Posts from './Posts';
 import duksae from './image/duksae05.jpg'
 import axios from 'axios';
 
-function Home({mainPageColor,selectedUniversity}) {
+function Home({mainPageColor,selectedUniversity,postData,setPostData, setSelectedUniversity}) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [postData, setPostData] = useState([]);
+  
 
   const openSidebar = () => {
     setIsSidebarOpen(true);
@@ -18,18 +18,36 @@ function Home({mainPageColor,selectedUniversity}) {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
-  useEffect(() => {
-    axios.get(`http://localhost:5000/posts_by_university_name/${selectedUniversity}`)
+  
+
+useEffect(() => {
+  axios.get(`http://localhost:5000/posts_by_university_name/${selectedUniversity}`)
       .then(response => {
-        console.log('Response Data:', response.data);  // 응답 데이터 확인
-        setPostData(response.data)
+        console.log('Response Data:', response.data.posts);  // 응답 데이터 확인
+        setPostData(response.data.posts)
       })
       .catch(error => {
         console.error('Error fetching universities:', error);  // 오류 메시지 확인
         console.error(error.response);  // 추가적인 응답 정보 확인
     });
-}, []);
-  
+  },[selectedUniversity]);
+
+
+
+/*
+  axios.get(`http://localhost:5000/`)
+    .then(response => {
+      console.log('Response Data:', response.data);
+      setPostData(response.data.posts);
+      setSelectedUniversity(response.data.university_name)
+    })
+    .catch(error => {
+      console.error('Error fetching universities:', error);  // 오류 메시지 확인
+      console.error(error.response);  // 추가적인 응답 정보 확인
+  });
+  */
+
+
 
   return (
     <div className="Home">

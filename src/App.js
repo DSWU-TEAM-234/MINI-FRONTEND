@@ -38,7 +38,7 @@ function Layout() {
 
   const [selectedUniversity, setSelectedUniversity] = useState('덕성여자대학교');  // 선택된 대학
   const [mainPageColor, setMainPageColor] = useState('#8b2842');  // 메인 페이지 색상
-
+  const [postData, setPostData] = useState([]);
 
 
 
@@ -49,18 +49,18 @@ function Layout() {
       
       {/* 사이드바 (메인 페이지와 대리 페이지에서도 표시됨) */}
       {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && (
-        <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} setSelectedUniversity={setSelectedUniversity} setMainPageColor={setMainPageColor}/>
+        <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} setSelectedUniversity={setSelectedUniversity} setMainPageColor={setMainPageColor} setPostData={setPostData}/>
         )}
 
 
       <Routes>
         {/* 메인 홈 페이지 */}
-        <Route path="/" element={<Home mainPageColor={mainPageColor} selectedUniversity={selectedUniversity}/>} />
+        <Route path="/" element={<Home mainPageColor={mainPageColor} selectedUniversity={selectedUniversity} postData={postData} setPostData={setPostData} setSelectedUniversity={setSelectedUniversity}/>} />
         {/* 대리 페이지 */}
-        <Route path="/ProxyPurchase" element={<ProxyPurchasePage />} />
+        <Route path="/ProxyPurchase" element={<ProxyPurchasePage selectedUniversity={selectedUniversity} postData={postData} setPostData={setPostData}/>} />
 
-        <Route path="ProxyPurchase/category/:categoryName" element={<CategoryDetail postType={"대리구매"}/>} /> {/* 카테고리 상세 페이지 경로 */}
-        <Route path="/category/:categoryName" element={<CategoryDetail postType={"중고거래"} />} /> {/* 카테고리 상세 페이지 경로 */}
+        <Route path="ProxyPurchase/category/:categoryName" element={<CategoryDetail postType={"대리구매"} selectedUniversity={selectedUniversity} postData={postData}  setPostData={setPostData}/>} /> {/* 카테고리 상세 페이지 경로 */}
+        <Route path="/category/:categoryName" element={<CategoryDetail postType={"중고거래"} selectedUniversity={selectedUniversity} postData={postData}  setPostData={setPostData}/>} /> {/* 카테고리 상세 페이지 경로 */}
         <Route path="/chat" element={<ChatPage />} /> {/* 채팅 상세 페이지 경로 */}
         <Route path="/write" element={<WritePage />} /> {/* 글쓰기 상세 페이지 경로 */}
         <Route path="/mypage" element={<MyPage />} /> {/* 마이페이지 상세 페이지 경로 */}

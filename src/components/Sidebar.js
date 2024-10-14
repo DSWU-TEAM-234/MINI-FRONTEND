@@ -15,7 +15,7 @@ const getInitial = (str) => {
   return initial.toUpperCase(); // 한글이 아닌 경우 영문 첫 글자
 };
 
-function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPageColor}) {
+function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPageColor,setPostData}) {
   // 사이드바 외부 클릭 시 닫기
   const handleClickOutside = (e) => {
     if (e.target.className === 'sidebar-background') {
@@ -27,29 +27,40 @@ function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPa
 
   // 데이터베이스에서 대학 목록 가져오기
     useEffect(() => {
-      axios.get('http://localhost:5000/api/universities')
+      axios.get('http://localhost:5000/get_university_list')
     .then(response => {
       console.log('Response Data:', response.data);  // 응답 데이터 확인
-      setUniversities(response.data);
+      setUniversities(response.data.university_names);
     })
     .catch(error => {
       console.error('Error fetching universities:', error);  // 오류 메시지 확인
       console.error(error.response);  // 추가적인 응답 정보 확인
   });
 
+
     }, []);
     
-    /*
-    useEffect(() => {
-      axios.get('http://localhost:5001/api/test')  // 이 경로는 테스트 엔드포인트
-        .then(response => {
-          console.log('Response:', response.data);  // 응답이 제대로 오는지 확인
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);  // 오류 메시지를 확인
-        });
-    }, []);*/
 
+    //사이드바 필터에서 대학 클릭을 감지했을 때 작동
+  const handleUniversityClick = (university) => {
+    setSelectedUniversity(university);
+    // 메인 페이지 색상 변경 (예: 대학에 따라 다르게 설정)
+    const newColor = universityColors[university] || '#282c34';
+    setMainPageColor(newColor);
+
+    
+    axios.get(`http://localhost:5000/posts_by_university_name/${university}`)
+      .then(response => {
+        console.log('Response Data:', response.data);  // 응답 데이터 확인
+        setPostData(response.data)
+      })
+      .catch(error => {
+        console.error('Error fetching universities:', error);  // 오류 메시지 확인
+        console.error(error.response);  // 추가적인 응답 정보 확인
+    });
+
+
+  }
    
 
   // 대학 목록을 ㄱ ㄴ ㄷ 순으로 정렬
@@ -77,13 +88,7 @@ function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPa
   
   
 
-  //사이드바 필터에서 대학 클릭을 감지했을 때 작동
-  const handleUniversityClick = (university) => {
-    setSelectedUniversity(university);
-    // 메인 페이지 색상 변경 (예: 대학에 따라 다르게 설정)
-    const newColor = universityColors[university] || '#282c34';
-    setMainPageColor(newColor);
-  }
+  
 
   //검색창 데이터
   const [searchTerm, setSearchTerm] = useState("");
