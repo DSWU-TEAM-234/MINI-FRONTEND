@@ -10,13 +10,14 @@ const categories = [
   { name: '기념소품', path: 'souvenirs' }
 ];
 
-function Categories() {
+
+function Categories({post_type}) {
   return (
     <div className="categories-container">
       {categories.map((category) => (
-        <Link to={`/category/${category.path}`} key={category.path}>
+        <Link to={`./category/${category.path}`} key={category.path}>
           <button className="category-button">
-            {category.name}
+            <small className="category-name">{category.name}</small>
           </button>
         </Link>
       ))}

@@ -13,8 +13,9 @@
     left: 20px;
   }
   
-  .category-name {
-    margin-top: 60px; /* 돌아가기 버튼과의 간격 */
+  .D_category-name {
+    padding-left: 60px;
+    padding-top: 10px;
   }
   
   p {

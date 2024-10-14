@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import './ProxyPurchasePage.css';
 import Categories from './Categories';
 import Posts from './Posts';
+import { Link } from 'react-router-dom';
 
 const ProxyPurchasePage = () => {
   const scrollContainerRef = useRef(null); // 스크롤 컨테이너 참조
@@ -49,17 +50,20 @@ const ProxyPurchasePage = () => {
         onMouseLeave={handleMouseUp}
       >
         {items.map((item) => (
+          
           <div key={item.id} className="item-block">
             <img src={item.image} alt={item.name} className="item-image" />
             <div className="item-name">{item.name}</div>
             <div className="item-price">{item.price}</div>
           </div>
+          
         ))}
       </div>
 
       {/* 카테고리 섹션 */}
-      <Categories />
+      <Categories post_type={"ProxyPurchase"} />
 
+      <h3 style={{ padding: '20px' }}>최신글</h3>
       {/* 최신글 섹션 */}
       <Posts />
     </div>

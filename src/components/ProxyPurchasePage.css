@@ -6,6 +6,7 @@
     padding: 15px 15px;
     scrollbar-width: none; /* 파이어폭스에서 스크롤바 숨기기 */
     -ms-overflow-style: none;  /* IE and Edge에서 스크롤바 숨기기 */
+    padding-top: 200px;
   }
   
   .item-scroll-container::-webkit-scrollbar {
@@ -43,3 +44,7 @@
     color: #888;
   }
   
+  .ProxyPurchase-item-link{
+    text-decoration: none; /* 링크의 밑줄 제거 */  
+    color: inherit;
+  }

@@ -7,8 +7,8 @@
   
   .category-button {
     flex-shrink: 0; /* 버튼 크기 고정 */
-    width: 140px; /* 버튼 너비 설정 */
-    height: 60px; /* 납작한 직사각형 높이 설정 */
+    width: 100px; /* 버튼 너비 설정 */
+    height: 90px; /* 납작한 직사각형 높이 설정 */
     font-size: 1em; /* 글씨 크기 설정 */
     color: black;
     cursor: pointer;

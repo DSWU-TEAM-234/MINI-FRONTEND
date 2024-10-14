@@ -12,6 +12,12 @@ html, body {
     margin: 0; /* 외부 여백 제거 */
     width: 100%; /* 너비를 100%로 설정 */
     box-sizing: border-box; /* 패딩 포함 계산 */
+    position:fixed;
+    z-index:5;
+  }
+
+  .app-name{
+    font-size: 22px;
   }
   
   .navbar {

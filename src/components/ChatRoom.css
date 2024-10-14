@@ -30,7 +30,7 @@
 
 .chat-content {
   flex: 1;
-  padding: 70px 20px 20px; /* 헤더 높이만큼 상단 패딩 추가 */
+  padding: 70px 20px 80px; /* 헤더 높이만큼 상단 패딩 추가 */
   overflow-y: auto;
   background-color: #fafafa;
 }
@@ -122,9 +122,13 @@
 
 /* 하단 메뉴 */
 .bottom-menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   justify-content: space-around;
-  padding: 50px;
+  padding: 40px 0px;
   animation: slideUp 0.3s ease-in-out;
   height: auto; /* 메뉴의 높이를 자동으로 설정 */
   z-index: 1;
@@ -177,6 +181,8 @@
   border-radius: 5px;
   font-size: 1em;
   transition: background-color 0.3s ease;
+  top: 8px;
+  left: 10px;
 }
 
 /* 모달 버튼 스타일 */

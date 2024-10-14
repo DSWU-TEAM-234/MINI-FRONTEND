@@ -19,10 +19,10 @@ function MessageBubble({ message, onViewLocation }) {
         </div>
       ) : message.type === "chat" ? (
         <span>{message.message}
-        {/*
-        <small className={`${msg.sender === 'me' ? 'my-message-time' : 'other-message-time'}`}>
-             {message.time}</small>
-        */}
+        {
+        <small className={`${message.sender === 'me' ? 'my-message-time' : 'other-message-time'}`}>
+             {currentTime}</small>
+        }
         </span>
       ) : (
         <span>알 수 없는 메시지 유형</span>

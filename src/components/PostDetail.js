@@ -31,6 +31,9 @@ const postsData = {
   // 다른 포스트 데이터 추가...
 };
 
+
+
+
 function PostDetail() {
   const { id } = useParams();
   const postDetails = postsData[id]; // ID에 따라 데이터 가져오기

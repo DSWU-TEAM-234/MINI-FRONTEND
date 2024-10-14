@@ -27,7 +27,7 @@ function Sidebar({ setSelectedUniversity, isSidebarOpen, closeSidebar, setMainPa
 
   // 데이터베이스에서 대학 목록 가져오기
     useEffect(() => {
-      axios.get('http://localhost:5001/api/universities')
+      axios.get('http://localhost:5000/api/universities')
     .then(response => {
       console.log('Response Data:', response.data);  // 응답 데이터 확인
       setUniversities(response.data);

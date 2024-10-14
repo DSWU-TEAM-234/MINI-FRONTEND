@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
 import useWebSocket from "../hooks/useWebSocket"
@@ -96,6 +96,14 @@ function ChatRoom() {
 
   const room = chatRooms[chatRoomId] || { nickname: '알 수 없는 사용자' };
 
+
+  //메세지 올때 화면 내려가게
+  const messageEndRef = useRef(null);
+  
+  useEffect(() => {
+    messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   const handleDressUpClick = () => {
     navigate('/dress-up-game'); // DressUpGame으로 이동
   };
@@ -103,10 +111,6 @@ function ChatRoom() {
   return (
     <div className="chat-room-detail">
       <ChatHeader chatRoomId={chatRoomId} />
-      <div className="chat-header">
-        <button className="chat-back-button" onClick={() => navigate(-1)}>&lt;</button>
-        <span className="nickname">{room.nickname}</span>
-      </div>
 
       <div className="chat-content">
         {/* 메시지 목록이 들어갈 부분 */}
@@ -116,15 +120,8 @@ function ChatRoom() {
           message={msg}
           onViewLocation={handleViewLocation}
         />
-          // <div
-          //   key={index}
-          //   className={`message-bubble ${msg.sender === 'me' ? 'my-message' : 'other-message'}`}
-          // >
-          //   {msg.text}
-          //   <small className={`${msg.sender === 'me' ? 'my-message-time' : 'other-message-time'}`}>
-          //     {msg.time}</small> {/* 시간 표시 */}
-          // </div>
         ))}
+        <div ref={messageEndRef}></div>
       </div>
 
       <ChatInput

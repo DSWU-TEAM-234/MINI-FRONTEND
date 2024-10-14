@@ -54,3 +54,7 @@
     text-decoration: none ; /* 밑줄 제거 */
     color: inherit ; /* 색상 상속 */
   }
+
+  h2 {
+    padding: 20px;
+  }
