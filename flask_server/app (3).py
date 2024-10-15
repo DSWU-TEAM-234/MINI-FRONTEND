@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session, jsonify, g
+from flask import Flask, request, render_template, redirect, url_for, session, jsonify, g, send_from_directory
 import pymysql
 from datetime import timedelta
 import os
@@ -34,6 +34,8 @@ def connect_to_db():
     )
 
 
+
+
 # 요청이 시작될 때 DB 연결 설정
 @app.before_request
 def before_request():
@@ -50,6 +52,11 @@ def teardown_request(exception):
         db_connection.close()
         print("DB 연결 종료")
 
+
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 
 # 처음으로 로드될 중고거래 홈 라우트
 @app.route('/', methods=['GET', 'POST'])

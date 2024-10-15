@@ -12,10 +12,9 @@
 
 
 .post-image {
-  width: 50%; /* 이미지 크기를 적당히 조정 */
+  width: 100%; /* 이미지 크기를 적당히 조정 */
   height: auto;
   border-radius: 8px;
-  margin-bottom: 20px;
 }
 
 .user-info {
@@ -37,7 +36,7 @@
   text-align: left; /* 좌측 정렬 */
 }
 
-.post-title {
+.d_post-title {
   font-size: 1.5em; /* 글자 크기 조정 */
   margin: 10px 0;
   text-align: left; /* 좌측 정렬 */

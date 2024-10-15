@@ -15,17 +15,23 @@ function Posts({postData}) {
   }
 
   return (
-    <div className="posts-container" >
-      {postData.map(postData => (
-        <Link to={`/posts/${postData.id}`} key={postData.id} className="post-link">
-          <div className="post-card">
-            <img src={postData.image} alt={postData.title} className="post-image" />
-            <h3 className="post-title">{postData.title}</h3>
-            <p className="post-price">{postData.price}</p>
-          </div>
-        </Link>
-      ))}
-    </div>
+    <div className="posts-container">
+      {postData.map(post => {
+        // 각 postData의 image를 서버의 도메인과 함께 절대 경로로 변환
+        const imageUrl = `http://localhost:5000/static/${post.image}`;
+
+        return (
+          <Link to={`/posts/${post.id}`} key={post.id} className="post-link">
+            <div className="post-card">
+              {/* 동적으로 생성된 imageUrl을 사용하여 이미지 표시 */}
+              <img src={imageUrl} alt={post.title} className="post-image" />
+              <h3 className="post-title">{post.title}</h3>
+              <p className="post-price">{post.price}</p>
+            </div>
+          </Link>
+        );
+      })}
+</div>
   );
 }
 

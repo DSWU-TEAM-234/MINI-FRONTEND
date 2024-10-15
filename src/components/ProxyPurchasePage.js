@@ -59,6 +59,7 @@ useEffect(() => {
 }, [selectedUniversity]);
 
 
+
   return (
     <div className="proxy-purchase-page">
 
@@ -72,18 +73,23 @@ useEffect(() => {
         onMouseLeave={handleMouseUp}
       >
         {itemData && itemData.length > 0 ? (
-            itemData.map((item) => (
+          itemData.map((item) => {
+            // 이미지 경로를 절대 경로로 변환
+            const imageUrl = `http://localhost:5000/static/${item.image}`; // 서버의 도메인 추가
+
+            return (
               <div key={item.id} className="item-block">
-                <img src={item.image} alt={item.item_name} className="item-image" />
+                <img className="item-name" src={imageUrl} alt={item.item_name} className="item-image" />
                 <div className="item-name">{item.item_name}</div>
                 <div className="item-price">{item.price}</div>
               </div>
-            ))
-          ) : (
-            <div className="item-block no-data">
-              <div className="no-data-text">정보 없음</div>
-            </div>
-      )}
+            );
+          })
+        ) : (
+          <div className="item-block no-data">
+            <div className="no-data-text">정보 없음</div>
+          </div>
+        )}
       </div>
 
       {/* 카테고리 섹션 */}
