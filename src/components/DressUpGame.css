@@ -1,0 +1,64 @@
+.dress-up-game {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+  }
+  
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+  }
+  
+  .game-container {
+    padding-bottom: 160px; /* 완성 버튼 및 선택창을 위한 여백 */
+  }
+  
+  .color-picker {
+    position: fixed;
+    bottom: 150px; /* 의상, 헤어 선택창 위에 위치 */
+    width: 100%;
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .options-container {
+    position: fixed;
+    bottom: 60px; /* 완성 버튼 위에 위치 */
+    width: 100%;
+    background-color: #f0f0f0;
+    padding: 10px;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-buttons {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .options {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+  }
+  
+  .complete-button {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  

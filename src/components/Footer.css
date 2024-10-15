@@ -1,25 +1,27 @@
-/* Footer.css */
-
 .App-footer {
-    background-color: #282c34; /* 배경색 */
-    color: white; /* 기본 글자색 */
-    text-align: center; /* 중앙 정렬 */
-    padding: 20px; /* 안쪽 여백 */
-    position: relative; /* 위치 설정 */
-    bottom: 0; /* 아래쪽 고정 */
-    width: 100%; /* 너비 100% */
+    display: flex;
+    justify-content: space-around;
+    align-items: center; /* 수직 중앙 정렬 */
+    padding: 10px;
+    background-color: #282c34;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%; /* 화면 전체 너비를 차지하도록 설정 */
+    box-sizing: border-box; /* 패딩을 포함한 전체 너비 계산 */
+    left: 0; /* 화면의 왼쪽 끝에서 시작하도록 설정 */
+    right: 0; /* 화면의 오른쪽 끝까지 차지 */
 }
 
 .footer-menu {
-    color: white; /* 기본 링크 색상을 흰색으로 변경 */
-    text-decoration: none; /* 밑줄 제거 */
-    margin: 0 10px; /* 좌우 여백 추가 */
+    color: white; /* 기본 글자 색상 */
+    cursor: pointer;
+    text-decoration: none;
 }
 
-.footer-menu:visited {
-    color: white; /* 방문한 링크 색상도 흰색으로 변경 */
-}
-
-.footer-menu:hover {
-    color: white; /* 호버 시 색상도 흰색으로 설정 */
+/* 클릭하거나 활성화되었을 때 색상 유지 */
+.footer-menu:active,
+.footer-menu:focus {
+    color: white; /* 활성화 또는 클릭 상태에서도 하얀색 유지 */
+    outline: none; /* 클릭했을 때 생기는 외곽선 제거 */
 }

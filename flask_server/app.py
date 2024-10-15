@@ -1,3 +1,9 @@
+import gevent
+import gevent.monkey
+
+gevent.monkey.patch_all()
+
+
 from flask import Flask, request, render_template, redirect, url_for, session, jsonify, g
 import pymysql
 from datetime import timedelta
@@ -5,11 +11,125 @@ import os
 import uuid
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room, leave_room
+import time
+
+
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 CORS(app)
 app.secret_key = 'your_secret_key_here'
+socketio = SocketIO(app, cors_allowed_origins="*",async_mode='gevent',transports=['websocket', 'polling'])
+
+
+@socketio.on("connect")
+def handle_connect():
+    """
+    클라이언트 연결 시 호출되는 이벤트 핸들러입니다.
+    """
+    print("Client connected")
+    emit('ping', {'data': 'ping'}, broadcast=True)
+
+@socketio.on('pong')
+def handle_pong():
+    print("Pong received from client")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    """
+    클라이언트 연결 해제 시 호출되는 이벤트 핸들러입니다.
+    """
+    print("Client disconnected")
+
+
+@socketio.on("join")
+def on_join(data):
+    """
+    클라이언트가 채팅방에 참여할 때 호출되는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    join_room(room)
+    emit("status", {"msg": f"User has joined the room: {room}"}, room=room)
+
+
+@socketio.on("leave")
+def on_leave(data):
+    """
+    클라이언트가 채팅방을 나갈 때 호출되는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    leave_room(room)
+    emit("status", {"msg": f"User has left the room: {room}"}, room=room)
+
+
+@socketio.on("chat")
+def handle_chat(data):
+    """
+    채팅 메시지를 처리하는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'message', 'from' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    message = data["message"]
+    from_id = data["from"]
+    emit("chat", {"type": "chat", "message": message, "from": from_id}, room=room)
+    print(data)
+
+
+@socketio.on("location")
+def handle_location(data):
+    """
+    위치 정보를 처리하는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'location', 'from' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    location = data["location"]
+    from_id = data["from"]
+    emit(
+        "location",
+        {"type": "location", "location": location, "from": from_id},
+        room=room,
+    )
+
+
+
+@socketio.on("real_time_location")
+def handle_real_time_location(data):
+    """
+    실시간 위치 정보를 처리하는 이벤트 핸들러입니다.
+    """
+    room = data.get("room")
+    location = data.get("location")
+    from_id = data.get("from")  # 'from' 필드가 제대로 도착하는지 확인
+    print(f"Received real_time_location from {from_id} with location {location}")
+
+    if not from_id:
+        print("Error: 'from' field is missing in data")
+        return
+
+    timestamp = int(time.time() * 1000)  # 현재 시간을 밀리초로 변환
+    emit(
+        "real_time_location",
+        {
+            "type": "real_time_location",
+            "location": location,
+            "from": from_id,
+            "timestamp": timestamp,
+        },
+        room=room,
+        include_self=False,  # 자신을 제외한 다른 클라이언트에게만 전송
+    )
+
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # 세션 지속 시간 설정
 
@@ -320,7 +440,7 @@ def logout():
     # 로그아웃 완료 메시지 반환
     return jsonify({"message": "로그아웃되었습니다."})
 
-
+##
 
 # 글 작성 처리 라우트 (공통 라우트)
 @app.route('/write_post', methods=['GET', 'POST'])
@@ -871,5 +991,6 @@ def get_goods_by_university(university_name):
         print(f"Error: {e}")
         return jsonify({"message": "굿즈 정보를 가져올 수 없습니다."}), 500
 
-if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+
+if __name__ == "__main__":
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)

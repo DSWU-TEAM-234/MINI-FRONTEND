@@ -1,34 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const Wishlist = ({ wishlist, onRemove }) => {
-    const [showWishlist, setShowWishlist] = useState(false); // 찜 목록 표시 상태
+const MyFavorites = () => {
+    const [favorites, setFavorites] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const toggleWishlist = () => {
-        setShowWishlist(prevState => !prevState); // 찜 목록 표시 상태 토글
-    };
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            try {
+                const response = await axios.get('/api/myfavorites'); // API 엔드포인트
+                setFavorites(response.data);
+            } catch (err) {
+                setError('찜 목록을 가져오는 데 오류가 발생했습니다.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFavorites();
+    }, []);
+
+    if (loading) {
+        return <div>로딩 중...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
 
     return (
-        <div className="wishlist">
-            <h3 onClick={toggleWishlist} style={{ cursor: 'pointer' }}>
-                찜 목록 {showWishlist ? '▲' : '▼'}
-            </h3>
-            {showWishlist && ( // 찜 목록이 열릴 때만 표시
-                wishlist.length === 0 ? (
-                    <p>찜 목록이 없습니다.</p>
-                ) : (
-                    <ul>
-                        {wishlist.map((item) => (
-                            <li key={item.id}>
-                                <h4>{item.productName}</h4>
-                                <p>가격: {item.price} 원</p>
-                                <button onClick={() => onRemove(item.id)}>삭제</button>
-                            </li>
-                        ))}
-                    </ul>
-                )
-            )}
+        <div>
+            <h2>내 찜 목록</h2>
+            <ul>
+                {favorites.map(item => (
+                    <li key={item.id}>
+                        <h3>{item.title}</h3>
+                        <p>{item.description}</p>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 };
 
-export default Wishlist;
+export default MyFavorites;

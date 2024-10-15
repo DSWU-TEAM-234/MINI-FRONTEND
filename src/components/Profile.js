@@ -25,12 +25,18 @@ const Profile = ({ user, setUser }) => {
     return (
         <div className="user-info">
             <img 
-                src={user.profileImage} 
+                src={user.profileImage || 'default-profile.png'} // 기본 프로필 이미지
                 alt="프로필" 
                 className="profile-image" 
                 onClick={handleProfileClick}
             />
             <h2>{user.nickname}</h2>
+            <p>{user.university_name}</p> {/* 학교 이름 추가 */}
+            <img 
+                src={user.universityLogo || 'default-logo.png'} // 기본 학교 로고
+                alt="학교 로고" 
+                className="university-logo" 
+            />
             <input
                 type="file"
                 accept="image/*"

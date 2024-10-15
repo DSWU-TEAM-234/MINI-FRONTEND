@@ -1,153 +1,77 @@
-.App {
-    text-align: center;
-  }
-  
-  .App-header {
-    background-color: #282c34;
-    color: white;
-  }
-  
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  .menu-icon, .search-icon {
-    cursor: pointer;
-  }
-  
-  .links {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-  }
-  
-  .banner {
-    background-color: #61dafb;
-    padding: 50px;
-    margin: 20px 0;
-  }
-  
-  .category {
-    background-color: #e0e0e0;
-    padding: 20px;
-  }
-  
-  .popular-posts {
-    background-color: #f5f5f5;
-    padding: 20px;
-  }
-  
-  /* Sidebar 스타일 */
-  
-  .sidebar {
+/* 전체 컨테이너 스타일 */
+.container {
+    max-width: 400px; /* 최대 너비 설정 */
+    margin: 0 auto; /* 중앙 정렬 */
+    padding: 20px; /* 패딩 */
+    background-color: #f9f9f9; /* 배경 색 */
+    border-radius: 10px; /* 둥근 모서리 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+
+/* 제목 스타일 */
+h1 {
+    text-align: center; /* 중앙 정렬 */
+    color: #333; /* 텍스트 색 */
+}
+
+/* 입력 필드 스타일 */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="file"] {
+    width: 100%; /* 너비 100% */
+    padding: 10px; /* 패딩 */
+    margin: 10px 0; /* 마진 */
+    border: 1px solid #ccc; /* 테두리 */
+    border-radius: 5px; /* 둥근 모서리 */
+}
+
+/* 오류 메시지 스타일 */
+span {
+    color: red; /* 오류 메시지 색 */
+    font-size: 0.9em; /* 글자 크기 조정 */
+}
+
+/* 버튼 스타일 */
+button {
+    width: 100%; /* 너비 100% */
+    padding: 10px; /* 패딩 */
+    background-color: #007bff; /* 배경 색 */
+    color: white; /* 텍스트 색 */
+    border: none; /* 테두리 없음 */
+    border-radius: 5px; /* 둥근 모서리 */
+    cursor: pointer; /* 커서 포인터 */
+    font-size: 1em; /* 글자 크기 */
+}
+
+/* 버튼 호버 효과 */
+button:hover {
+    background-color: #0056b3; /* 호버 시 색상 변경 */
+}
+
+/* 모달 스타일 */
+.modal {
     position: fixed;
     top: 0;
     left: 0;
-    width: 250px;
-    height: 100%;
-    background-color: #333;
-    color: white;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
-  }
-  
-  .sidebar-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    right: 0;
+    bottom: 0;
     background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
     display: flex;
-    justify-content: flex-start; /* 사이드바가 왼쪽에 위치 */
-  }
-
-  .sidebar-header {
-    display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-  }
-  
-  .close-icon {
-    cursor: pointer;
-    font-size: 24px;
-  }
-  
-  .search-input {
-    padding: 5px;
-    width: 70%;
-    border: none;
-    border-radius: 4px;
-  }
-  
-  .sidebar-menu {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 20px;
-  }
-  
-  .sidebar-menu li {
-    padding: 10px 0;
-    cursor: pointer;
-  }
-  
-  .sidebar-menu li:hover {
-    background-color: #555;
-  }
-  
-  /* Footer 스타일 */
-  .App-footer {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px;
-    background-color: #282c34;
-    color: white;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-  }
+}
 
-  /*header 스타일*/
-  .links {
-    display: flex;
-    justify-content: flex-start; /* 왼쪽 정렬 */
-    align-items: center; /* 수직 중앙 정렬 */
-    padding-left: 20px; /* 왼쪽에 여유 공간 추가 */
-    padding-right: 20px; /* 오른쪽에 여유 공간 추가 */
-  }
-  
-  .links span {
-    margin-right: 15px; /* 버튼 사이 간격 추가 */
-    cursor: pointer;
-    padding-bottom: 10px; /* 밑줄 표시를 위한 패딩 추가 */
-    font-weight: normal; /* 기본 글씨 굵기 */
-  }
-  
-  .links .active {
-    border-bottom: 2px solid white; /* 선택된 버튼 밑줄 하얀색 */
-    font-weight: bold; /* 선택된 버튼 글씨 굵게 */
-    margin-bottom: -10px; /* 밑줄을 하단 경계선에 가깝게 위치 */
-  }
-  
-  .right-section {
-    margin-left: auto; /* 오른쪽으로 밀어줌 */
-  }
-  
+/* 모달 내용 스타일 */
+.modal-content {
+    background-color: white; /* 배경 색 */
+    padding: 20px; /* 패딩 */
+    border-radius: 5px; /* 둥근 모서리 */
+    max-width: 400px; /* 최대 너비 설정 */
+    width: 100%; /* 너비 100% */
+}
 
-  .links span, .links a {
-    color: white; /* 글자색을 흰색으로 설정 */
-    text-decoration: none; /* 밑줄 제거 */
-    padding: 10px; /* 클릭 영역을 넓히기 위한 패딩 */
-  }
-  
-  .links span.active, .links a.active {
-    font-weight: bold; /* 활성화된 버튼은 굵게 표시 */
-  }
-  
-  
+/* 모달 제목 스타일 */
+.modal-content h2 {
+    margin-top: 0; /* 상단 마진 없음 */
+}

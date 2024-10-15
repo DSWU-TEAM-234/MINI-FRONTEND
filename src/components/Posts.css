@@ -2,7 +2,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개의 글을 표시 */
     gap: 20px; /* 카드 간 간격 */
-    padding: 20px;
+    padding: 10px 5px 40px;
   }
   
   .post-card {
@@ -17,6 +17,7 @@
   
   .post-card:hover {
     transform: scale(1.05); /* 마우스를 올렸을 때 약간 확대 */
+    z-index:1;
   }
   
   .post-image {
@@ -35,47 +36,13 @@
     margin-bottom: 10px;
   }
   
-  .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding: 10px;
-    border-top: 1px solid #ccc;
+  .post-link {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit; /* 링크 색상 변경 방지 */
   }
   
-  .price {
-    font-size: 1.5rem;
-    font-weight: bold;
+  .post-link:hover {
+    text-decoration: none; /* 호버 시에도 밑줄 제거 */
+    color: inherit; /* 호버 시에도 색상 유지 */
   }
-  
-  .chat-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .chat-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding: 10px;
-    border-top: 1px solid #ccc;
-    position: relative; /* 상대 위치로 설정 */
-  }
-  
-  .price {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0; /* 여백 제거 */
-  }
-  
   

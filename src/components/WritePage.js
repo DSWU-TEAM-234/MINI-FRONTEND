@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import './Write.css';
+import { useNavigate } from 'react-router-dom'; // useNavigate 추가
+import './WritePage.css';
 
-
-const Write = ({ postTypeFromHeader }) => {
+const WritePage = ({ postTypeFromHeader }) => {
+    const navigate = useNavigate(); // navigate 함수 추가
     const [postType, setPostType] = useState(postTypeFromHeader || '중고거래');
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('');
@@ -29,7 +30,8 @@ const Write = ({ postTypeFromHeader }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log({
+        // 포스트 데이터를 상세 페이지로 전달하며 이동
+        const postData = {
             postType,
             title,
             category,
@@ -37,7 +39,9 @@ const Write = ({ postTypeFromHeader }) => {
             description,
             transactionMethod,
             images,
-        });
+        };
+        // 포스트 상세 페이지로 이동
+        navigate('/post-detail', { state: postData });
     };
 
     const handleImageChange = (e) => {
@@ -48,12 +52,11 @@ const Write = ({ postTypeFromHeader }) => {
     };
 
     useEffect(() => {
-        // postTypeFromHeader가 변경될 때만 실행
         if (postTypeFromHeader) {
             setPostType(postTypeFromHeader);
             resetForm();
         } else {
-            setPostType('중고거래'); // 기본값 설정
+            setPostType('중고거래');
             resetForm();
         }
     }, [postTypeFromHeader]);
@@ -74,8 +77,6 @@ const Write = ({ postTypeFromHeader }) => {
                     대리구매
                 </button>
             </div>
-
-            <button type="submit" className="submit-button">작성하기</button>
 
             <form onSubmit={handleSubmit}>
                 <div>
@@ -161,9 +162,11 @@ const Write = ({ postTypeFromHeader }) => {
                         택배
                     </label>
                 </div>
+
+                <button type="submit" className="submit-button">저장하기</button>
             </form>
         </div>
     );
 };
 
-export default Write;
+export default WritePage;

@@ -2,10 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
 
-
-function Footer() {
+function Footer({mainPageColor}) {
   return (
-    <footer className="App-footer">
+    <footer className="App-footer" style={{ backgroundColor: mainPageColor }}>
       <Link to="/" className="footer-menu">홈</Link>
       <Link to="/chat" className="footer-menu">채팅</Link>
       <Link to="/write" className="footer-menu">글쓰기</Link>

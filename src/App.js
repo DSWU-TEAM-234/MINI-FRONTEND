@@ -1,35 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
-
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import './global.css';
+// import './App.css';
+import Home from './components/Home'; // 메인 페이지
+import ProxyPurchasePage from './components/ProxyPurchasePage'; // 대리 페이지
+import Footer from './components/Footer';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import Footer from './components/Footer';
-
-import Home from './components/Home';
+import CategoryDetail from './components/CategoryDetail';
+import ChatPage from './components/ChatPage'; // 채팅 상세 페이지
+import WritePage from './components/WritePage'; // 글쓰기 상세 페이지
+import MyPage from './components/MyPage'; // 마이페이지 상세 페이지
+import ChatRoom from './components/ChatRoom'; // 이전 ChatDetailPage를 ChatRoom으로 수정
 import Posts from './components/Posts';
 import PostDetail from './components/PostDetail';
-
-import Chat from './components/Chat';
-
-import Write from './components/Write'; 
-
-import MyPage from './components/MyPage';
+import DressUpGame from './components/DressUpGame';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
-import Profile from './components/Profile';  //사진,닉네임,대학뱃지
+import Profile from './components/Profile';
 import Wishlist from './components/Wishlist';
 import TransactionHistory from './components/TransactionHistory';
-// import  MyPostList from './components/MyPostList';  //
+import MyPosts from './components/MyPosts';  
 
-// import  from './components/';
-
-import './App.css';
-
-function App() {
+function Layout() {
+  const location = useLocation(); // 현재 경로를 확인
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const location = useLocation();
-  const [hideHeader, setHideHeader] = useState(false);
-  const [hideFooter, setHideFooter] = useState(false);
 
   const openSidebar = () => {
     setIsSidebarOpen(true);
@@ -39,50 +34,62 @@ function App() {
     setIsSidebarOpen(false);
   };
 
-  useEffect(() => {
-    // 헤더를 숨길 경로 목록
-    const hideHeaderPaths = ['/chat','/write', '/mypage'];
-    
-    // 현재 경로가 동적 경로인지 확인
-    const isPostDetail = location.pathname.startsWith('/posts/') && location.pathname.split('/').length === 3;
+   // 푸터를 숨겨야 하는 조건 (채팅방 상세, DressUpGame페이지, 게시글 상세)
+  const hideFooter = location.pathname.startsWith('/chat/') || location.pathname === '/dress-up-game'|| location.pathname.startsWith('/posts/') ;
 
-    setHideHeader(hideHeaderPaths.includes(location.pathname) || isPostDetail);
-    setHideFooter(isPostDetail); // PostDetail 페이지에서 푸터 숨기기
-  }, [location]);
+  const [selectedUniversity, setSelectedUniversity] = useState('덕성여자대학교');  // 선택된 대학
+  const [mainPageColor, setMainPageColor] = useState('#8b2842');  // 메인 페이지 색상
+  const [postData, setPostData] = useState([]);
+
+
 
   return (
     <div className="App">
-      {/* 헤더가 숨겨질 경로인지 확인 */}
-      {!hideHeader && <Header openSidebar={openSidebar} />}
-      <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} />
+      {/* 헤더는 메인 페이지와 대리 페이지에서만 표시 */}
+      {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && <Header openSidebar={openSidebar} university={selectedUniversity} mainPageColor={mainPageColor} />}
+      
+      {/* 사이드바 (메인 페이지와 대리 페이지에서도 표시됨) */}
+      {(location.pathname === '/' || location.pathname === '/ProxyPurchase') && (
+        <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} setSelectedUniversity={setSelectedUniversity} setMainPageColor={setMainPageColor} setPostData={setPostData}/>
+        )}
+
+
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* 메인 홈 페이지 */}
+        <Route path="/" element={<Home mainPageColor={mainPageColor} selectedUniversity={selectedUniversity} postData={postData} setPostData={setPostData} setSelectedUniversity={setSelectedUniversity}/>} />
+        {/* 대리 페이지 */}
+        <Route path="/ProxyPurchase" element={<ProxyPurchasePage selectedUniversity={selectedUniversity} postData={postData} setPostData={setPostData}/>} />
+
+        <Route path="ProxyPurchase/category/:categoryName" element={<CategoryDetail postType={"대리구매"} selectedUniversity={selectedUniversity} postData={postData}  setPostData={setPostData}/>} /> {/* 카테고리 상세 페이지 경로 */}
+        <Route path="/category/:categoryName" element={<CategoryDetail postType={"중고거래"} selectedUniversity={selectedUniversity} postData={postData}  setPostData={setPostData}/>} /> {/* 카테고리 상세 페이지 경로 */}
+        <Route path="/chat" element={<ChatPage />} /> {/* 채팅 상세 페이지 경로 */}
+        <Route path="/write" element={<WritePage />} /> {/* 글쓰기 상세 페이지 경로 */}
+        <Route path="/mypage" element={<MyPage />} /> {/* 마이페이지 상세 페이지 경로 */}
+
+        <Route path="/chat/:chatRoomId" element={<ChatRoom />} /> {/* 채팅방 상세 페이지 경로 */}
         <Route path="/posts" element={<Posts />} />
-        <Route path="/posts/:id" element={<PostDetail />} /> 
-
-        <Route path="/chat" element={<Chat />} />
-
-        <Route path="/write" element={<Write />} />
-
-        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/posts/:id" element={<PostDetail />} /> {/* 게시글 상세 페이지 */}
+        <Route path="/dress-up-game" element={<DressUpGame />} /> {/* DressUpGame 페이지 */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />        
         <Route path="/profile" element={<Profile />} />        
         <Route path="/wishlist" element={<Wishlist />} />        
-        <Route path="/ransactionHistory" element={<TransactionHistory />} />        
+        <Route path="/mypots" element={<MyPosts />} />        
+        <Route path="/ransactionHistory" element={<TransactionHistory />} />
       </Routes>
       
-      {/* 푸터가 숨겨질 경로인지 확인 */}
-      {!hideFooter && <Footer />}
+      {/* 채팅방 상세 페이지에서는 푸터 숨김 */}
+      {!hideFooter && <Footer mainPageColor={mainPageColor} />}
     </div>
   );
 }
 
-// Router를 App 컴포넌트의 최상위에서 사용할 수 있도록 수정
-const AppWrapper = () => (
-  <Router>
-    <App />
-  </Router>
-);
+function App() {
+  return (
+    <Router>
+      <Layout />
+    </Router>
+  );
+}
 
-export default AppWrapper;
+export default App;

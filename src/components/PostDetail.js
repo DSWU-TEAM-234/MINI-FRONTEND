@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import BackButton from './BackButton';
 import LikeButton from './LikeButton';
-import Profile from './Profile'; // Profile 컴포넌트 임포트
+import Profile from './Profile';
 import './PostDetail.css';
 
 const postsData = {
@@ -32,24 +32,25 @@ const postsData = {
 };
 
 function PostDetail() {
-  const { id } = useParams();
-  const postDetails = postsData[id]; // ID에 따라 데이터 가져오기
-  const [isLiked, setIsLiked] = useState(false); // 찜하기 상태 관리
+  const { id } = useParams(); // id를 사용
+  const location = useLocation();
+  const postDetails = location.state || postsData[id]; // 전달된 포스트 데이터가 없을 경우 postsData에서 가져옴
+
+  const [isLiked, setIsLiked] = useState(false);
 
   if (!postDetails) {
-    return <div>포스트를 찾을 수 없습니다.</div>; // 포스트가 없는 경우 처리
+    return <div>포스트를 찾을 수 없습니다.</div>;
   }
 
   const handleLike = () => {
-    setIsLiked(!isLiked); // 찜하기 상태 토글
+    setIsLiked(!isLiked);
   };
 
   return (
     <div className="post-detail-container">
       <BackButton />
-      <img src={postDetails.image} alt={postDetails.title} className="post-image" />
+      <img src={postDetails.images[0] || 'https://via.placeholder.com/400'} alt={postDetails.title} className="post-image" />
       
-      {/* Profile 컴포넌트 추가 */}
       <Profile user={postDetails.user} setUser={() => {}} />
 
       <h2 className="post-title">{postDetails.title}</h2>

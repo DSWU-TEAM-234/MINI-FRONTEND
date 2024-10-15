@@ -1,67 +1,44 @@
-import React, { useState } from 'react';
-import Profile from './Profile'; 
-import Wishlist from './Wishlist'; 
-import TransactionHistory from './TransactionHistory';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './MyPage.css';
+import Profile from './Profile';
 
-const MyPage = () => {
-    const [user, setUser] = useState({
-        nickname: '홍길동',
-        email: 'hong@example.com',
-        profileImage: 'https://via.placeholder.com/100'
-    });
+function MyPage() {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
 
-    const transactionHistory = {
-        secondHand: [
-            { id: 1, orderNumber: '001', productName: '스니커즈', price: 50000, date: '2023-10-01' },
-        ],
-        agencyPurchase: [
-            { id: 2, orderNumber: '002', productName: '가방', price: 30000, date: '2023-09-20' },
-        ],
-    };
+  const handleLogout = async () => {
+    try {
+      await axios.post('http://localhost:5000/logout'); // 로그아웃 요청
+      localStorage.removeItem('user'); // 로컬 스토리지에서 사용자 정보 삭제
+      navigate('/login'); // 로그인 페이지로 리다이렉션
+      alert('로그아웃되었습니다.'); // 로그아웃 알림
+    } catch (error) {
+      console.error('로그아웃 오류:', error);
+      alert('로그아웃 중 오류가 발생했습니다.'); // 오류 알림
+    }
+  };
 
-    const [wishlist, setWishlist] = useState([
-        { id: 1, productName: '모자', price: 15000 },
-    ]);
-
-    const [showDetails, setShowDetails] = useState({
-        secondHand: false,
-        agencyPurchase: false,
-    });
-
-    const handleRemoveFromWishlist = (id) => {
-        setWishlist(prevWishlist => prevWishlist.filter(item => item.id !== id));
-    };
-
-    const toggleDetails = (section) => {
-        setShowDetails(prevState => ({
-            ...prevState,
-            [section]: !prevState[section],
-        }));
-    };
-
-    return (
-        <div className="my-page">
-            <Profile user={user} setUser={setUser} /> 
-            <div className="content-container">
-                <div className="transaction-container">
-                    <Wishlist wishlist={wishlist} onRemove={handleRemoveFromWishlist} />
-                    <TransactionHistory 
-                        title="중고 거래"
-                        transactions={transactionHistory.secondHand}
-                        showDetails={showDetails.secondHand}
-                        toggleDetails={() => toggleDetails('secondHand')}
-                    />
-                    <TransactionHistory 
-                        title="대리 구매"
-                        transactions={transactionHistory.agencyPurchase}
-                        showDetails={showDetails.agencyPurchase}
-                        toggleDetails={() => toggleDetails('agencyPurchase')}
-                    />
-                </div>
-            </div>            
-        </div>
-    );
-};
+  return (
+    <div className="mypage-container">
+      <div className="button-container">
+        {user ? (
+          <>
+            {/* 로그인된 경우 프로필 컴포넌트를 보여줍니다. */}
+            <Profile user={user} />
+            <button onClick={handleLogout} className="mypage-button">로그아웃</button>
+          </>
+        ) : (
+          // 로그인되지 않은 경우 로그인/회원가입 버튼을 보여줍니다.
+          <Link to="/login" className="mypage-button">로그인/회원가입</Link>
+        )}
+        <Link to="/wishlist" className="mypage-button">찜목록</Link>
+        <Link to="/order-history" className="mypage-button">거래내역</Link>
+        <Link to="/myposts" className="mypage-button">내가 쓴 글</Link>
+      </div>
+    </div>
+  );
+}
 
 export default MyPage;

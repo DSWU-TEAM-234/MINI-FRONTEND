@@ -1,0 +1,61 @@
+html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+.App-header {
+    background-color: #282c34;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    margin: 0; /* 외부 여백 제거 */
+    width: 100%; /* 너비를 100%로 설정 */
+    box-sizing: border-box; /* 패딩 포함 계산 */
+    position:fixed;
+    z-index:5;
+  }
+
+  .app-name{
+    font-size: 22px;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
+  
+  .links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding-top: 10px;
+  }
+  
+  .links a {
+    color: white;
+    text-decoration: none;
+    padding-bottom: 5px;
+  }
+  
+  .links a:hover {
+    text-decoration: underline;
+  }
+  
+  .links .active {
+    border-bottom: 2px solid white; /* 밑줄 */
+    font-weight: bold; /* 활성화된 버튼 굵게 표시 */
+  }
+  
+  .right-section {
+    margin-left: auto;
+  }
+
+  .menu-icon {
+  cursor: pointer; /* 손 모양의 커서로 변경 */
+  font-size: 20px;
+}
+
+  
