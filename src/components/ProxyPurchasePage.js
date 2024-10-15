@@ -71,15 +71,19 @@ useEffect(() => {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {itemData.map((item) => (
-          
-          <div key={item.id} className="item-block">
-            <img src={item.image} alt={item.item_name} className="item-image" />
-            <div className="item-name">{item.item_name}</div>
-            <div className="item-price">{item.price}</div>
-          </div>
-          
-        ))}
+        {itemData && itemData.length > 0 ? (
+            itemData.map((item) => (
+              <div key={item.id} className="item-block">
+                <img src={item.image} alt={item.item_name} className="item-image" />
+                <div className="item-name">{item.item_name}</div>
+                <div className="item-price">{item.price}</div>
+              </div>
+            ))
+          ) : (
+            <div className="item-block no-data">
+              <div className="no-data-text">정보 없음</div>
+            </div>
+      )}
       </div>
 
       {/* 카테고리 섹션 */}
