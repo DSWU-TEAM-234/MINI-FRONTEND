@@ -15,7 +15,7 @@ function Posts({postData}) {
   }
 
   return (
-    <div className="posts-container">
+    <div className="posts-container" >
       {postData.map(postData => (
         <Link to={`/posts/${postData.id}`} key={postData.id} className="post-link">
           <div className="post-card">

@@ -24,14 +24,20 @@ function CategoryDetail({postType, selectedUniversity, postData ,setPostData}) {
   const { categoryName } = useParams(); // URL에서 카테고리 이름을 가져옴
   const translatedCategory = categoryTranslations[categoryName] || categoryName;
 
+  const [isLoading, setIsLoading] = useState(true); 
+
 
   useEffect(() => {
+    setIsLoading(true);
     axios.get(`http://localhost:5000/posts_by_category/${selectedUniversity}/${categoryName}`)
       .then(response => {
+        setPostData([]);
         setPostData(response.data.posts);  // 서버에서 받은 데이터를 상태로 저장
+        setIsLoading(false);
       })
       .catch(error => {
         console.error('Error fetching post data:', error);
+        setIsLoading(false);
       });
   }, []);
 
@@ -43,6 +49,7 @@ function CategoryDetail({postType, selectedUniversity, postData ,setPostData}) {
   
 
   return (
+    
     <div className="category-detail">
       {/* 돌아가기 버튼 */}
       <button className="back-button" onClick={() => navigate(-1)}>
@@ -50,10 +57,14 @@ function CategoryDetail({postType, selectedUniversity, postData ,setPostData}) {
       </button>
 
       <h2 className="D_category-name" >{translatedCategory} 카테고리 상세 페이지</h2>
-      <Posts postData = {posts}/>
-
-      {/* Footer 추가 */}
-      <Footer />
+    <>
+      {isLoading ? (
+        <div className="loading_text">Loading...</div>  // 로딩 중일 때 보여줄 내용
+      ) : (
+      <Posts postData = {posts}/>)}
+    </>
+    {/* Footer 추가 */}
+    <Footer />
     </div>
   );
 }
