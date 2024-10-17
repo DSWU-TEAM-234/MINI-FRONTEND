@@ -42,7 +42,7 @@ function Layout() {
   const openSidebar = () => setIsSidebarOpen(true);
   const closeSidebar = () => setIsSidebarOpen(false);
 
-  const hideFooter = location.pathname.startsWith('/chat/') || location.pathname === '/dress-up-game' || location.pathname.startsWith('/posts/');
+  const hideFooter = location.pathname.startsWith('/chat/') || location.pathname === '/dress-up-game' || location.pathname.startsWith('/post_detail/');
 
   return (
     <div className="App">

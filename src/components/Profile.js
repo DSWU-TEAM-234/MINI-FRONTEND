@@ -24,18 +24,25 @@ const Profile = ({ user, setUser }) => {
 
     return (
         <div className="user-info">
-            <img 
+            <img
                 src={user.profile_image || '/images/default-profile.png'}  // 기본 프로필 이미지
-                alt="프로필" 
-                className="profile-image" 
+                alt="프로필"
+                className="profile-image"
                 onClick={handleProfileClick}
             />
             <h2>{user.user_nickName || '닉네임이 없습니다.'}</h2>
-            {user.university_name && (
-                <img 
-                    src={user.university_logo || '/images/default-logo.png'} // 대학 로고
-                    alt="학교 로고" 
-                    className="university-logo" 
+            {user.isAccepted ? (
+                <img
+                    src='/images/external.png' // 외부인 이미지
+                    alt="외부인"
+                    className="external-logo"
+
+                />
+            ) : (
+                <img
+                    src={user.university_logo || '/images/logo.png'} // 대학 로고
+                    alt="학교 로고"
+                    className="university-logo"
                 />
             )}
             <input

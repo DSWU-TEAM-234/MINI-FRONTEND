@@ -61,7 +61,7 @@ const WritePage = ({ postTypeFromHeader }) => {
         formData.append('post_type', postType);
         formData.append('title', title);
         formData.append('category', category);
-        formData.append('price', parseFloat(price));
+        formData.append('price', price);
         formData.append('content', description);
         formData.append('deal_method', transactionMethod);
         images.forEach(image => formData.append('image', image));

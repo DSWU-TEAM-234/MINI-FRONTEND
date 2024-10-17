@@ -18,12 +18,11 @@ function PostDetail() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        console.log("Post ID:", id); // ID 확인
         const fetchPostDetails = async () => {
             if (!id) {
                 setError('유효하지 않은 게시글 ID입니다.');
                 setLoading(false);
-                return; // id가 없으면 API 호출을 중단합니다.
+                return;
             }
 
             try {
@@ -82,19 +81,21 @@ function PostDetail() {
     return (
         <div className="post-detail-container">
             <BackButton />
-            <img 
-                src={postDetails.image ||  `${process.env.PUBLIC_URL}/uploads/${postDetails.image}`}
+            <img
+                src={postDetails.image ? `/${postDetails.image}` : `${process.env.PUBLIC_URL}/default_image.png`}
                 alt={postDetails.title || '게시글 이미지'} 
                 className="post-image" 
             />
-            <Profile user={{ id: postDetails.user_id, nickname: postDetails.user_nickName }} setUser={() => {}} />
+            <Profile user={{ id: postDetails.user_id, user_nickName: postDetails.user_nickName }} setUser={() => {}} />
+
             <h2 className="post-title">{postDetails.title}</h2>
             <p className="post-category">카테고리: {postDetails.category}</p>
             <p className="post-description">{postDetails.content}</p>
-            <p className="post-price">{postDetails.price.toLocaleString()} 원</p>
+            
 
             <div className="footer">
                 <LikeButton isLiked={isLiked} handleLike={handleLike} />
+                <p className="post-price">{postDetails.price.toLocaleString()}원</p>
                 <button 
                     className="chat-button" 
                     onClick={() => {

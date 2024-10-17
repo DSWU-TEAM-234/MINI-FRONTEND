@@ -21,7 +21,7 @@ socketio = SocketIO(app, cors_allowed_origins="*",async_mode='gevent',transports
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # 세션 지속 시간 설정
 
-UPLOAD_FOLDER = 'static/uploads'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # 이미지 저장 경로 확인 및 디렉토리 생성
@@ -62,9 +62,10 @@ def teardown_request(exception):
         db_connection.close()
         print("DB 연결 종료")
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    return send_from_directory('static', filename)
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # 처음으로 로드될 중고거래 홈 라우트
 @app.route('/', methods=['GET', 'POST'])
@@ -387,7 +388,7 @@ def write_post():
             unique_filename = f"{uuid.uuid4().hex}_{img.filename}"
             img_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
             img.save(img_path)
-            image_paths.append(img_path)
+            image_paths.append(f"uploads/{unique_filename}")
         else:
             return jsonify({"message": "허용되지 않는 파일 형식입니다."}), 400
 

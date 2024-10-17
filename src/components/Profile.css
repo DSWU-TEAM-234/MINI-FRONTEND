@@ -21,17 +21,21 @@
 
 .university-info {
     display: flex;
-    align-items: center; /* 수직 정렬 */
+    align-items: flex-end; /* 수직 정렬 */
     margin-right: 10px; /* 오른쪽 여백 */
 }
 
 .university-logo {
-    width: 30px; /* 학교 로고 크기 */
-    height: 30px; /* 학교 로고 크기 */
+    width: 26px; /* 학교 로고 크기 */
+    height: 26px; /* 학교 로고 크기 */
     margin-right: 5px; /* 오른쪽 여백 */
 }
 
 h2 {
-    font-size: 1rem; /* 닉네임 크기 */
+    font-size: 1.5rem; /* 닉네임 크기 */
     margin: 0; /* 여백 제거 */
+    padding: 0;
+    align-items: center; /* 수직 정렬 */
+
+    
 }
