@@ -1,10 +1,5 @@
-import gevent
-import gevent.monkey
-
-gevent.monkey.patch_all()
-
-
-from flask import Flask, request, render_template, redirect, url_for, session, jsonify, g
+from flask import Flask, request, render_template, redirect, url_for, session, jsonify, g, send_from_directory
+# from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import pymysql
 from datetime import timedelta
 import os
@@ -18,123 +13,20 @@ import time
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-CORS(app)
+CORS(app, supports_credentials=True)
+# CORS_ALLOW_CREDENTIALS = True
+cors = CORS(app, resources={r"/write_post": {"origins": "http://localhost:3000", "supports_credentials": True}})
 app.secret_key = 'your_secret_key_here'
 socketio = SocketIO(app, cors_allowed_origins="*",async_mode='gevent',transports=['websocket', 'polling'])
-
-
-@socketio.on("connect")
-def handle_connect():
-    """
-    클라이언트 연결 시 호출되는 이벤트 핸들러입니다.
-    """
-    print("Client connected")
-    emit('ping', {'data': 'ping'}, broadcast=True)
-
-@socketio.on('pong')
-def handle_pong():
-    print("Pong received from client")
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    """
-    클라이언트 연결 해제 시 호출되는 이벤트 핸들러입니다.
-    """
-    print("Client disconnected")
-
-
-@socketio.on("join")
-def on_join(data):
-    """
-    클라이언트가 채팅방에 참여할 때 호출되는 이벤트 핸들러입니다.
-
-    Args:
-        data (dict): 클라이언트로부터 받은 데이터. 'room' 키를 포함해야 합니다.
-    """
-    room = data["room"]
-    join_room(room)
-    emit("status", {"msg": f"User has joined the room: {room}"}, room=room)
-
-
-@socketio.on("leave")
-def on_leave(data):
-    """
-    클라이언트가 채팅방을 나갈 때 호출되는 이벤트 핸들러입니다.
-
-    Args:
-        data (dict): 클라이언트로부터 받은 데이터. 'room' 키를 포함해야 합니다.
-    """
-    room = data["room"]
-    leave_room(room)
-    emit("status", {"msg": f"User has left the room: {room}"}, room=room)
-
-
-@socketio.on("chat")
-def handle_chat(data):
-    """
-    채팅 메시지를 처리하는 이벤트 핸들러입니다.
-
-    Args:
-        data (dict): 클라이언트로부터 받은 데이터. 'room', 'message', 'from' 키를 포함해야 합니다.
-    """
-    room = data["room"]
-    message = data["message"]
-    from_id = data["from"]
-    emit("chat", {"type": "chat", "message": message, "from": from_id}, room=room)
-    print(data)
-
-
-@socketio.on("location")
-def handle_location(data):
-    """
-    위치 정보를 처리하는 이벤트 핸들러입니다.
-
-    Args:
-        data (dict): 클라이언트로부터 받은 데이터. 'room', 'location', 'from' 키를 포함해야 합니다.
-    """
-    room = data["room"]
-    location = data["location"]
-    from_id = data["from"]
-    emit(
-        "location",
-        {"type": "location", "location": location, "from": from_id},
-        room=room,
-    )
-
-
-
-@socketio.on("real_time_location")
-def handle_real_time_location(data):
-    """
-    실시간 위치 정보를 처리하는 이벤트 핸들러입니다.
-    """
-    room = data.get("room")
-    location = data.get("location")
-    from_id = data.get("from")  # 'from' 필드가 제대로 도착하는지 확인
-    print(f"Received real_time_location from {from_id} with location {location}")
-
-    if not from_id:
-        print("Error: 'from' field is missing in data")
-        return
-
-    timestamp = int(time.time() * 1000)  # 현재 시간을 밀리초로 변환
-    emit(
-        "real_time_location",
-        {
-            "type": "real_time_location",
-            "location": location,
-            "from": from_id,
-            "timestamp": timestamp,
-        },
-        room=room,
-        include_self=False,  # 자신을 제외한 다른 클라이언트에게만 전송
-    )
-
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # 세션 지속 시간 설정
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# 이미지 저장 경로 확인 및 디렉토리 생성
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -170,6 +62,9 @@ def teardown_request(exception):
         db_connection.close()
         print("DB 연결 종료")
 
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 
 # 처음으로 로드될 중고거래 홈 라우트
 @app.route('/', methods=['GET', 'POST'])
@@ -318,9 +213,11 @@ def signup():
         else:
             profile_image_path = None
         
+        # isAccepted 값 설정
+        isAccepted = '인증' if university_classification else '외부인'
+        
         # 데이터베이스에 회원 정보 저장
         try:
-            # 데이터베이스 연결이 없는 경우 예외 처리
             with g.db_connection.cursor() as cursor:
                 # 이메일 중복 확인
                 sql_check_email = "SELECT * FROM users WHERE email = %s"
@@ -335,14 +232,10 @@ def signup():
                 # 중복된 이메일 또는 닉네임이 있을 경우
                 if email_exists:
                     message = "이미 등록된 이메일입니다."
-                    return jsonify({
-                'message': message
-                })
+                    return jsonify({'message': message})
                 elif nick_name_exists:
                     message = "이미 사용 중인 닉네임입니다."
-                    return jsonify({
-                'message': message
-                })
+                    return jsonify({'message': message})
                 
                 # university_classification이 None이 아닐 경우에만 university_and_logo 테이블에 중복 확인 및 저장
                 if university_classification:
@@ -360,10 +253,10 @@ def signup():
                 
                 # 데이터 삽입 SQL 쿼리 (중복이 없는 경우)
                 sql_insert_user = """
-                    INSERT INTO users (name, email, password, nick_name, university_classification, profile_image)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO users (name, email, password, nick_name, university_classification, profile_image, isAccepted)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """
-                cursor.execute(sql_insert_user, (name, email, hashed_password, nick_name, university_classification, profile_image_path))
+                cursor.execute(sql_insert_user, (name, email, hashed_password, nick_name, university_classification, profile_image_path, isAccepted))
                 g.db_connection.commit()  # 변경 사항 저장
                 
                 # 회원가입 성공 시 홈 페이지로 리다이렉트하며 플래그 전달
@@ -373,6 +266,7 @@ def signup():
             print(f"Error: {e}")
             return jsonify({"message": "회원가입 실패"}), 500
 
+
 # 로그인 라우트
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -380,13 +274,13 @@ def login():
     print("로그인 라우트 실행")
     
     if request.method == 'POST':
-        # JSON 형식으로 데이터 가져오기
+        # # # 폼 데이터 가져오기
+        # email = request.form['email']
+        # password = request.form['password']
+        # # JSON 형식으로 데이터 가져오기
         data = request.json
         email = data.get('email')
         password = data.get('password')
-
-        if not email or not password:
-            return jsonify({"message": "이메일과 비밀번호를 입력하세요."}), 400
         
         try:
             with g.db_connection.cursor() as cursor:
@@ -405,15 +299,35 @@ def login():
                     session['user_id'] = user['id']
                     session['user_nickName'] = user['nick_name']
                     session['profile_image'] = user['profile_image']
-                    session['university_name'] = user['university_classification'] if user['isAccepted'] == "인증" else "외부인"
+                    
+                    # 사용자의 isAccepted 여부에 따라 세션에 university_name 저장 (비인증 시 외부인으로)
+                    if user['isAccepted'] == "인증":
+                        session['university_name'] = user['university_classification']
+                    else:
+                        session['university_name'] = "외부인"
+                    
+                    # 사용자의 university_name에 따른 university_logo 가져오기
+                    university_name = session.get('university_name')
+                    sql_logo = "SELECT university_logo FROM university_and_logo WHERE university_name = %s"
+                    cursor.execute(sql_logo, (university_name,))
+                    university_logo = cursor.fetchone()
 
+                    if university_logo:
+                        session['university_logo'] = university_logo['university_logo']
+                        
+                    session.permanent = True  # 영구 세션 사용
+                    print(session['user_id'])
+                    print(session['user_nickName'])
+                    print(session['university_name'])
+                    print(session['university_logo'])
+                    
                     # 로그인 성공 시
                     return jsonify({
                         'message': "로그인 성공",
                         'user_id': session['user_id'],
                         'user_nickName': session['user_nickName'],
                         'profile_image': session['profile_image'],
-                        'university_name': session['university_name'],
+                        'university_logo' : session['university_logo']
                     }), 200
                     
                 else:
@@ -425,6 +339,7 @@ def login():
 
     return jsonify({"message": "로그인 페이지에 오신 것을 환영합니다."}), 200
 
+
 # 로그아웃 라우트
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -432,84 +347,69 @@ def logout():
     print("로그아웃 라우트 실행")
     
     # 세션 정보 삭제
-    session.pop('user_id', None)
-    session.pop('user_nickName', None)
-    session.pop('university_name', None)
-    session.pop('university_logo', None)
+    # session.pop('user_id', None)
+    # session.pop('user_nickName', None)
+    # session.pop('university_name', None)
+    # session.pop('university_logo', None)
     
     # 로그아웃 완료 메시지 반환
     return jsonify({"message": "로그아웃되었습니다."})
 
-##
 
 # 글 작성 처리 라우트 (공통 라우트)
-@app.route('/write_post', methods=['GET', 'POST'])
+# 서버 측: 글 작성 처리 라우트
+@app.route('/write_post', methods=['POST'])
 def write_post():
-        print("------------------------------")
-        print("글 작성 라우트 실행")
-        # 세션에서 user_id 및 user_nickName 정보 가져오기
-        user_id = session.get('user_id')
-        user_nickName = session.get('user_nickName')
+    user_id = session.get('user_id')
+    user_nickName = session.get('user_nickName')
+    print(user_id)
 
-        print(user_id)
-        print(user_nickName)
+    if not user_id or not user_nickName:
 
-        # 세션에 사용자 정보가 없으면 로그인 페이지로 리다이렉트
-        if not user_id or not user_nickName:
-            return jsonify({"message": "로그인 후 이용 가능합니다."})
+        return jsonify({"message": "로그인 하고 이용 가능합니다."}), 401
 
-        # 폼 데이터 가져오기
-        post_type = request.form.get('post_type')
-        title = request.form.get('title')
-        category = request.form.get('category')
-        price = request.form.get('price')
-        content = request.form.get('content')
-        deal_method = request.form.get('deal_method')
-        image = request.files.getlist('image')  # 이미지 파일 목록
-        
-        # 필수 필드에 대한 None 체크
-        if not post_type or not title or not category or not price or not deal_method or not image:
-            error_message = "필수 입력 필드가 누락되었습니다. 모든 필드를 입력해주세요."
-            return render_template('signup.html', error_message=error_message)
-    
-        # 이미지 파일 저장
-        image_paths = []
-        for img in image:
-            if img and allowed_file(img.filename):
-                print(img.filename)
-                unique_filename = f"{uuid.uuid4().hex}_{img.filename}"
-                img_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                img.save(img_path)
-                image_paths.append(img_path)
-            else:
-                print("허용되지 않는 파일 형식입니다.")
+    # 데이터 수신 및 필수 항목 체크
+    post_type = request.form.get('post_type')
+    title = request.form.get('title')
+    category = request.form.get('category')
+    price = request.form.get('price')
+    content = request.form.get('content')
+    deal_method = request.form.get('deal_method')
+    image = request.files.getlist('image')
 
-        image_str = ','.join(image_paths) if image_paths else None
-        print(image_str)
-    
-        # 데이터베이스에 게시글 저장
-        try:
-            with g.db_connection.cursor() as cursor:
-                # 데이터 삽입 SQL 쿼리
-                # 이미지 파일 이름을 문자열로 변환
-                sql = """
-                    INSERT INTO posts (user_nickName, title, category, content, deal_method, price, image, post_type, user_id)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """
-                cursor.execute(sql, (user_nickName, title, category, content, deal_method, price, image_str, post_type, user_id))
-                g.db_connection.commit()  # 변경 사항 저장
-                
-                print("저장완료")
-                
-                # 방금 작성한 게시글의 id 가져오기
-                post_id = cursor.lastrowid  
-                
-                # 글 작성 완료 후 상세 페이지로 리다이렉트
-            return redirect(url_for('post_detail', post_id=post_id))
-                
-        except pymysql.MySQLError as e:
-            print(f"Error: {e}")
-            return jsonify({"message": "게시글 등록 실패"}), 500
+    if not all([post_type, title, category, price, deal_method, image]):
+        return jsonify({"message": "필수 입력 필드가 누락되었습니다. 모든 필드를 입력해주세요."}), 400
+
+    # 이미지 저장 처리
+    image_paths = []
+    for img in image:
+        if img and allowed_file(img.filename):
+            unique_filename = f"{uuid.uuid4().hex}_{img.filename}"
+            img_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+            img.save(img_path)
+            image_paths.append(img_path)
+        else:
+            return jsonify({"message": "허용되지 않는 파일 형식입니다."}), 400
+
+    image_str = ','.join(image_paths)
+
+    try:
+        # 데이터베이스 저장
+        with g.db_connection.cursor() as cursor:
+            sql = """
+                INSERT INTO posts (user_nickName, title, category, content, deal_method, price, image, post_type, user_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(sql, (user_nickName, title, category, content, deal_method, price, image_str, post_type, user_id))
+            g.db_connection.commit()
+
+            post_id = cursor.lastrowid
+            return jsonify({"message": "게시글 작성 완료!", "post_id": post_id}), 201
+
+    except pymysql.MySQLError as e:
+        print(f"Error: {e}")
+        return jsonify({"message": "게시글 등록 실패"}), 500
+
 
 
 # 게시글 수정 처리 라우트
@@ -638,10 +538,10 @@ def post_detail(post_id):
             print(post)
             print("\n")
 
-            # 게시글 정보를 post_detail.html로 전달하여 렌더링
-            return jsonify({
-            'post': post
-            })
+            if post:
+                return jsonify({'post': post}), 200
+            else:
+                return jsonify({"message": "게시글을 찾을 수 없습니다."}), 404
 
     except pymysql.MySQLError as e:
         print(f"Error: {e}")
@@ -805,11 +705,13 @@ def MyPage():
         return jsonify({"message": "게시글을 가져오는 중에 오류가 발생했습니다."}), 500
 
 
-# 자신이 작성한 중고거래 또는 대리구매 글 자세히 보기 페이지 이동 시 로그인 된 사용자의 중고거래 및 대리구매 정보 넘기는 라우트
-@app.route('/MyPosts/<string:post_type>', methods=['GET', 'POST'])
-def MyPosts(post_type):
+# 자신이 작성한 중고거래 또는 대리구매 글 자세히 보기 페이지 이동 시 로그인 된 사용자가 작성한 글 정보 넘기는 라우트
+@app.route('/MyPosts', methods=['GET', 'POST'])
+def MyPosts():
     print("------------------------------")
     print("자신이 작성한 중고거래 또는 대리구매 글 정보 전달 라우트 실행")
+    # 세션에서 user_id 정보 가져오기
+    user_id = session.get('user_id')
     
     # 세션에 사용자 정보가 없으면 로그인 페이지로 리다이렉트
     if not session:
@@ -818,8 +720,8 @@ def MyPosts(post_type):
     try:
         with g.db_connection.cursor() as cursor:
             # posts 테이블에서 post_type 따른 모든 게시글(중고거래 및 대리구매) 가져오기
-            sql = "SELECT * FROM posts WHERE post_type = %s"
-            cursor.execute(sql, (post_type,))
+            sql = "SELECT * FROM posts WHERE id = %s"
+            cursor.execute(sql, (user_id),)
             created_posts = cursor.fetchall()
             
             # 결과 출력 (디버깅 용도)
@@ -991,6 +893,114 @@ def get_goods_by_university(university_name):
         print(f"Error: {e}")
         return jsonify({"message": "굿즈 정보를 가져올 수 없습니다."}), 500
 
+@socketio.on("connect")
+def handle_connect():
+    """
+    클라이언트 연결 시 호출되는 이벤트 핸들러입니다.
+    """
+    print("Client connected")
+    emit('ping', {'data': 'ping'}, broadcast=True)
+
+@socketio.on('pong')
+def handle_pong():
+    print("Pong received from client")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    """
+    클라이언트 연결 해제 시 호출되는 이벤트 핸들러입니다.
+    """
+    print("Client disconnected")
+
+
+@socketio.on("join")
+def on_join(data):
+    """
+    클라이언트가 채팅방에 참여할 때 호출되는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    join_room(room)
+    emit("status", {"msg": f"User has joined the room: {room}"}, room=room)
+
+
+@socketio.on("leave")
+def on_leave(data):
+    """
+    클라이언트가 채팅방을 나갈 때 호출되는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    leave_room(room)
+    emit("status", {"msg": f"User has left the room: {room}"}, room=room)
+
+
+@socketio.on("chat")
+def handle_chat(data):
+    """
+    채팅 메시지를 처리하는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'message', 'from' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    message = data["message"]
+    from_id = data["from"]
+    emit("chat", {"type": "chat", "message": message, "from": from_id}, room=room)
+    print(data)
+
+
+@socketio.on("location")
+def handle_location(data):
+    """
+    위치 정보를 처리하는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'location', 'from' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    location = data["location"]
+    from_id = data["from"]
+    emit(
+        "location",
+        {"type": "location", "location": location, "from": from_id},
+        room=room,
+    )
+
+
+
+@socketio.on("real_time_location")
+def handle_real_time_location(data):
+    """
+    실시간 위치 정보를 처리하는 이벤트 핸들러입니다.
+    """
+    room = data.get("room")
+    location = data.get("location")
+    from_id = data.get("from")  # 'from' 필드가 제대로 도착하는지 확인
+    print(f"Received real_time_location from {from_id} with location {location}")
+
+    if not from_id:
+        print("Error: 'from' field is missing in data")
+        return
+
+    timestamp = int(time.time() * 1000)  # 현재 시간을 밀리초로 변환
+    emit(
+        "real_time_location",
+        {
+            "type": "real_time_location",
+            "location": location,
+            "from": from_id,
+            "timestamp": timestamp,
+        },
+        room=room,
+        include_self=False,  # 자신을 제외한 다른 클라이언트에게만 전송
+    )
+
 
 if __name__ == "__main__":
+    app.run(port=5000,debug=True)
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)

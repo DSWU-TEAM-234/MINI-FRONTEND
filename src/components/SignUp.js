@@ -57,6 +57,10 @@ const SignUp = () => {
         for (const key in formData) {
             data.append(key, formData[key]);
         }
+        
+        // university_classification의 유무에 따라 isAccepted 값을 설정
+        const isAccepted = formData.university_classification ? '인증' : '외부인';
+        data.append('isAccepted', isAccepted);
 
         try {
             const response = await axios.post('http://localhost:5000/signup', data, {
@@ -66,7 +70,7 @@ const SignUp = () => {
             });
             console.log(response.data.message);
             alert(response.data.message); // 성공 메시지 표시
-            
+                        
             // 가입 성공 시 처리
             setFormData({
                 name: '',
@@ -220,6 +224,7 @@ const modalStyle = {
     justifyContent: 'center',
     alignItems: 'center',
 };
+
 
 const modalContentStyle = {
     backgroundColor: 'white',

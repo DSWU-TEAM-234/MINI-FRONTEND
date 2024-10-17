@@ -1,6 +1,6 @@
 import React from "react";
-import { MapContainer as LeafletMap, TileLayer, Marker, Popup } from "react-leaflet";
-import 'leaflet/dist/leaflet.css';  //npm install leaflet react-leaflet
+import { MapContainer as LeafletMap, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import 'leaflet/dist/leaflet.css';  // npm install leaflet react-leaflet
 import L from 'leaflet';
 
 // 기본 마커 아이콘 설정
@@ -11,11 +11,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-function MapContainer({ title, myLocation, otherLocation }) {
+function ChangeView({ myLocation, otherLocation }) {
+  const map = useMap();
+  
+  React.useEffect(() => {
+    if (myLocation || otherLocation) {
+      const bounds = L.latLngBounds(
+        myLocation ? [myLocation.latitude, myLocation.longitude] : [],
+        otherLocation ? [otherLocation.latitude, otherLocation.longitude] : []
+      );
+      map.fitBounds(bounds);
+    }
+  }, [myLocation, otherLocation, map]);
+
+  return null;
+}
+
+function MapContainer({ title, myLocation, otherLocation, height = "400px", width = "200px" }) {
   return (
     <div className="map-container">
       <h4>{title}</h4>
-      <LeafletMap center={myLocation ? [myLocation.latitude, myLocation.longitude] : [0, 0]} zoom={17} style={{ height: "400px", width: "100%" }}>
+      <LeafletMap center={[0, 0]} zoom={2} style={{ height, width }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -30,6 +46,7 @@ function MapContainer({ title, myLocation, otherLocation }) {
             <Popup>상대방 위치</Popup>
           </Marker>
         )}
+        <ChangeView myLocation={myLocation} otherLocation={otherLocation} />
       </LeafletMap>
     </div>
   );

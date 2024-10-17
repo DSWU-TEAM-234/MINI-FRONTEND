@@ -3,43 +3,41 @@ import axios from 'axios';
 
 const MyPosts = () => {
     const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await axios.get('/api/myposts'); // API 엔드포인트
-                setPosts(response.data);
+                const response = await axios.get('/MyPosts', {
+                    withCredentials: true // withCredentials와 같은 역할
+                });
+
+                setPosts(response.data.created_posts);
             } catch (err) {
-                setError('게시물을 가져오는 데 오류가 발생했습니다.');
-            } finally {
-                setLoading(false);
+                setError(err.response ? err.response.data.message : '오류가 발생했습니다.');
+                console.error('Error fetching posts:', err);
             }
         };
 
         fetchPosts();
     }, []);
 
-    if (loading) {
-        return <div>로딩 중...</div>;
-    }
-
     if (error) {
-        return <div>{error}</div>;
+        return <div>오류가 발생했습니다: {error}</div>;
     }
 
     return (
         <div>
-            <h2>내 게시물</h2>
-            <ul>
-                {posts.map(post => (
-                    <li key={post.id}>
-                        <h3>{post.title}</h3>
-                        <p>{post.content}</p>
-                    </li>
-                ))}
-            </ul>
+            <h1>내 게시글</h1>
+            {posts.length > 0 ? (
+                <ul>
+                    {posts.map(post => (
+                        <li key={post.id}>{post.title}</li> // 게시글 제목을 표시
+                    ))}
+                </ul>
+            ) : (
+                <p>작성한 게시글이 없습니다.</p>
+            )}
         </div>
     );
 };

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // AuthContext 사용
 import './Login.css';
 
 const Login = () => {
+    const { handleLogin } = useAuth(); // 로그인 상태 업데이트 함수
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -12,23 +14,17 @@ const Login = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setCredentials({ ...credentials, [name]: value });
+        setCredentials(prev => ({ ...prev, [name]: value }));
         validateField(name, value);
     };
 
     const validateField = (name, value) => {
-        let newErrors = { ...errors };
-        switch (name) {
-            case 'email':
-                newErrors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : '유효한 이메일 주소를 입력하세요.';
-                break;
-            case 'password':
-                newErrors.password = value.length >= 6 ? '' : '비밀번호는 6자 이상이어야 합니다.';
-                break;
-            default:
-                break;
-        }
-        setErrors(newErrors);
+        setErrors(prev => ({
+            ...prev,
+            [name]: name === 'email' ?
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : '유효한 이메일 주소를 입력하세요.' :
+                name === 'password' && value.length < 6 ? '비밀번호는 6자 이상이어야 합니다.' : ''
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -37,26 +33,26 @@ const Login = () => {
 
         setIsLoading(true);
         setLoginError('');
+
         try {
             const response = await axios.post('http://localhost:5000/login', credentials, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
             });
 
-            // 로그인 성공 시 사용자 정보를 로컬 스토리지에 저장
+            const token = response.data.token;
+            localStorage.setItem('token', token); // 로컬 스토리지에 저장
+
             const userData = {
                 user_id: response.data.user_id,
                 user_nickName: response.data.user_nickName,
                 profile_image: response.data.profile_image,
                 university_name: response.data.university_name,
             };
+
             localStorage.setItem('user', JSON.stringify(userData));
-
-            // 로그인 성공 알림창
+            handleLogin(userData); // 로그인 상태 업데이트 및 사용자 정보 설정
             alert('로그인 성공! 환영합니다!');
-
-            // 홈 페이지로 리다이렉션
             navigate('/mypage');
         } catch (error) {
             console.error('로그인 오류:', error);
@@ -67,11 +63,7 @@ const Login = () => {
     };
 
     const isFormValid = () => {
-        return (
-            credentials.email &&
-            credentials.password &&
-            Object.values(errors).every(error => !error)
-        );
+        return credentials.email && credentials.password && !errors.email && !errors.password;
     };
 
     return (

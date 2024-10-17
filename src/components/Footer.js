@@ -7,7 +7,7 @@ function Footer({mainPageColor}) {
     <footer className="App-footer" style={{ backgroundColor: mainPageColor }}>
       <Link to="/" className="footer-menu">홈</Link>
       <Link to="/chat" className="footer-menu">채팅</Link>
-      <Link to="/write" className="footer-menu">글쓰기</Link>
+      <Link to="/writepage" className="footer-menu">글쓰기</Link>
       <Link to="/mypage" className="footer-menu">마이페이지</Link>
     </footer>
   );

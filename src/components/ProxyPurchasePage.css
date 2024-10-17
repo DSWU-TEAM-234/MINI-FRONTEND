@@ -6,7 +6,7 @@
     padding: 15px 15px;
     scrollbar-width: none; /* 파이어폭스에서 스크롤바 숨기기 */
     -ms-overflow-style: none;  /* IE and Edge에서 스크롤바 숨기기 */
-    padding-top: 200px;
+    padding-top: 130px;
   }
   
   .item-scroll-container::-webkit-scrollbar {
@@ -28,9 +28,10 @@
   
   .item-image {
     width: 100%;
-    height: 150px;
+    height: 140px;
     object-fit: cover;
-    border-radius: 5px;
+    border-radius: 15px;
+    padding-top: 20px;
   }
   
   .item-name {
@@ -42,6 +43,7 @@
   .item-price {
     margin-top: 5px;
     color: #888;
+    padding-bottom: 10px;
   }
   
   .ProxyPurchase-item-link{
