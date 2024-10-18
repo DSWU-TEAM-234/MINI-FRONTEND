@@ -5,11 +5,3 @@
     font-size: 24px; /* 하트 아이콘 크기 조정 */
     transition: color 0.3s ease;
 }
-
-.bookmark-button:hover {
-    color: red; /* 마우스 오버 시 색상 변화 */
-}
-
-.bookmark-button.bookmarked {
-    color: red; /* 찜한 상태에서 하트 색상 */
-}

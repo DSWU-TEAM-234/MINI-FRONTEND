@@ -2,58 +2,59 @@ import React, { useRef } from 'react';
 import './Profile.css';
 
 const Profile = ({ user, setUser }) => {
-    const fileInputRef = useRef(null);
+const fileInputRef = useRef(null);
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                setUser(prevUser => ({
-                    ...prevUser,
-                    profile_image: reader.result // 프로필 이미지를 업데이트
-                }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
-    const handleProfileClick = () => {
-        fileInputRef.current.click(); // 파일 입력 클릭
-    };
+const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            setUser(prevUser => ({
+                ...prevUser,
+                profile_image: reader.result // 프로필 이미지를 업데이트
+            }));
+        };
+        reader.readAsDataURL(file);
+    }
+};
 
-    return (
-        <div className="user-info">
+const handleProfileClick = () => {
+    fileInputRef.current.click(); // 파일 입력 클릭
+};
+
+return (
+    <div className="user-info">
+        <img
+            src={user.profile_image || '/images/default-profile.png'}  // 기본 프로필 이미지
+            alt="프로필"
+            className="profile-image"
+            onClick={handleProfileClick}
+        />
+        <h2>{user.user_nickName || '닉네임이 없습니다.'}</h2>
+        {user.isAccepted == '외부인'? (
             <img
-                src={user.profile_image || '/images/default-profile.png'}  // 기본 프로필 이미지
-                alt="프로필"
-                className="profile-image"
-                onClick={handleProfileClick}
-            />
-            <h2>{user.user_nickName || '닉네임이 없습니다.'}</h2>
-            {user.isAccepted == '외부인'? (
-                <img
-                    src='/images/external.png' // 외부인 이미지
-                    alt="외부인"
-                    className="external-logo"
+                src='/images/external.png' // 외부인 이미지
+                alt="외부인"
+                className="external-logo"
 
-                />
-            ) : (
-                <img
-                    src={user.university_logo || '/images/logo.png'} // 대학 로고
-                    alt="학교 로고"
-                    className="university-logo"
-                />
-            )}
-            <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                ref={fileInputRef}
-                style={{ display: 'none' }} // 입력 필드를 숨김
             />
-        </div>
-    );
+        ) : (
+            <img
+                src={user.university_logo || '/images/logo.png'} // 대학 로고
+                alt="학교 로고"
+                className="university-logo"
+            />
+        )}
+        <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            ref={fileInputRef}
+            style={{ display: 'none' }} // 입력 필드를 숨김
+        />
+    </div>
+);
 };
 
 export default Profile;

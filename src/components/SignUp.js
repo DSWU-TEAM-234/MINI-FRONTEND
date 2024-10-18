@@ -194,7 +194,7 @@ const SignUp = () => {
                 <div style={modalStyle}>
                     <div style={modalContentStyle}>
                         <h2>약관 동의</h2>
-                        <p>여기에 약관 내용을 작성하세요.</p>
+                        <p>개인정보 수집에 동의합니다.</p>
                         <label>
                             <input 
                                 type="checkbox" 

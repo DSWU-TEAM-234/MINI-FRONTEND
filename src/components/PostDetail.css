@@ -3,7 +3,7 @@
 .post-detail-container {
   max-width: 400px; /* 최대 너비 설정 */
   width: 100%; /* 화면 크기에 따라 너비 조정 */
-  margin: 0 auto; /* 중앙 정렬 */
+  margin: 20px auto; /* 중앙 정렬 */
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
@@ -36,7 +36,7 @@
 }
 
 .post-title {
-  font-size: 2em; /* 제목 크기 */
+  font-size: 1.5em; /* 제목 크기 */
   margin: 10px 0;
   color: #333;
 }
