@@ -68,7 +68,7 @@ function Layout() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
-        {/* <Route path="/My_bookmarked_posts" element={isLoggedIn ? <MyBookmarkedPosts /> : <Navigate to="/login" />} /> */}
+        {/* <Route path="/bookmarked_posts" element={isLoggedIn ? <MyBookmarkedPosts /> : <Navigate to="/login" />} /> */}
         <Route path="/myposts" element={isLoggedIn ? <MyPosts /> : <Navigate to="/login" />} />
         <Route path="/transactionHistory" element={isLoggedIn ? <TransactionHistory /> : <Navigate to="/login" />} />
       </Routes>

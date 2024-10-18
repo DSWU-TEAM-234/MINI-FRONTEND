@@ -8,7 +8,10 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import time
+import gevent
+import gevent.monkey
 
+gevent.monkey.patch_all()
 
 
 app = Flask(__name__)

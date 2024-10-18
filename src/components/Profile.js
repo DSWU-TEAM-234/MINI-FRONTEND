@@ -31,7 +31,7 @@ const Profile = ({ user, setUser }) => {
                 onClick={handleProfileClick}
             />
             <h2>{user.user_nickName || '닉네임이 없습니다.'}</h2>
-            {user.isAccepted ? (
+            {user.isAccepted == '외부인'? (
                 <img
                     src='/images/external.png' // 외부인 이미지
                     alt="외부인"

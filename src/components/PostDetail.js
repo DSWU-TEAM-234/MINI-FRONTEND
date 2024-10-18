@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BackButton from './BackButton';
-import LikeButton from './LikeButton';
 import Profile from './Profile';
+import BookmarkButton from './BookmarkButton';
 import './PostDetail.css';
 
 const API_URL = '/post_detail/';
+const BOOKMARKED_POSTS_URL = '/My_bookmarked_posts';
 
 function PostDetail() {
     const { id } = useParams();
@@ -14,6 +15,7 @@ function PostDetail() {
     const { isLoggedIn } = useAuth();
     const [postDetails, setPostDetails] = useState(null);
     const [isLiked, setIsLiked] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -27,19 +29,18 @@ function PostDetail() {
 
             try {
                 const response = await fetch(`${API_URL}${id}`);
-                if (!response.ok) {
-                    throw new Error('게시글을 가져오는 데 실패했습니다.');
-                }
-
+                if (!response.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
+                
                 const data = await response.json();
                 if (data.post) {
                     setPostDetails(data.post);
                     setIsLiked(data.post.isLiked || false);
+                    setIsBookmarked(data.post.isBookmarked || false);
                 } else {
                     setError('게시글을 찾을 수 없습니다.');
                 }
             } catch (err) {
-                setError(err.message || '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                setError(err.message || '서버 오류가 발생했습니다.');
             } finally {
                 setLoading(false);
             }
@@ -48,25 +49,49 @@ function PostDetail() {
         fetchPostDetails();
     }, [id]);
 
-    const handleLike = async () => {
+    const handleBookmark = async () => {
         if (!isLoggedIn) {
-            alert('좋아요 기능을 사용하려면 로그인 해주세요.');
+            alert('로그인 후 찜할 수 있습니다.');
             return;
         }
 
         try {
-            const response = await fetch(`/like_post/${id}`, {
-                method: isLiked ? 'DELETE' : 'POST',
+            const response = await fetch(`/bookmark/${id}`, {
+                method: 'POST',
                 credentials: 'include',
             });
-
+            const data = await response.json();
             if (response.ok) {
-                setIsLiked(prev => !prev);
+                setIsBookmarked(true);
+                alert(data.message);
             } else {
-                alert('좋아요 처리 중 오류가 발생했습니다.');
+                alert(data.message);
             }
-        } catch (error) {
-            alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        } catch (err) {
+            alert('찜 처리 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleCancelBookmark = async () => {
+        if (!isLoggedIn) {
+            alert('로그인 후 찜 취소할 수 있습니다.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/cancel_bookmark/${id}`, {
+                method: 'POST',
+                credentials: 'include',
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setIsBookmarked(false);
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        } catch (err) {
+            alert('찜 취소 중 오류가 발생했습니다.');
         }
     };
 
@@ -92,9 +117,12 @@ function PostDetail() {
             <p className="post-category">카테고리: {postDetails.category}</p>
             <p className="post-description">{postDetails.content}</p>
             
-
             <div className="footer">
-                <LikeButton isLiked={isLiked} handleLike={handleLike} />
+                <BookmarkButton 
+                    isBookmarked={isBookmarked} 
+                    onBookmark={handleBookmark} 
+                    onCancelBookmark={handleCancelBookmark} 
+                />
                 <p className="post-price">{postDetails.price.toLocaleString()}원</p>
                 <button 
                     className="chat-button" 
@@ -107,7 +135,7 @@ function PostDetail() {
                     }}>
                     채팅하기
                 </button>
-            </div>
+            </div>            
         </div>
     );
 }

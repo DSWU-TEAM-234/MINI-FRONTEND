@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import './WritePage.css';
 import axios from 'axios';
 
-
 const WritePage = ({ postTypeFromHeader }) => {
     const { isLoggedIn, user } = useAuth();
     const navigate = useNavigate();
@@ -17,19 +16,13 @@ const WritePage = ({ postTypeFromHeader }) => {
     const [images, setImages] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!isLoggedIn) {
-            console.log('로그인되지 않은 상태입니다.');
-            console.log(user);
-            
             navigate('/login');
-        } else {
-            console.log('로그인 상태:', isLoggedIn);
-            console.log('사용자 정보:', user);
-
         }
-    }, [isLoggedIn, user, navigate]);
+    }, [isLoggedIn, navigate]);
 
     const resetForm = () => {
         setTitle('');
@@ -49,14 +42,12 @@ const WritePage = ({ postTypeFromHeader }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
         if (!isLoggedIn) {
             alert('로그인이 필요합니다.');
             navigate('/login');
             return;
         }
 
-    
         const formData = new FormData();
         formData.append('post_type', postType);
         formData.append('title', title);
@@ -66,8 +57,8 @@ const WritePage = ({ postTypeFromHeader }) => {
         formData.append('deal_method', transactionMethod);
         images.forEach(image => formData.append('image', image));
 
-        
-    
+        setLoading(true); // 로딩 상태 시작
+
         try {
             const response = await axios.post('http://localhost:5000/write_post', formData, {
                 headers: {
@@ -75,7 +66,7 @@ const WritePage = ({ postTypeFromHeader }) => {
                 },
                 withCredentials: true
             });
-    
+
             alert(response.data.message);
             navigate(`/post_detail/${response.data.post_id}`);
             resetForm();
@@ -83,10 +74,10 @@ const WritePage = ({ postTypeFromHeader }) => {
             const message = error.response?.data?.message || '게시글 작성 중 오류가 발생했습니다.';
             setErrorMessage(message);
             console.error('게시글 작성 실패:', error);
+        } finally {
+            setLoading(false); // 로딩 상태 종료
         }
     };
-    
-    
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
@@ -95,60 +86,49 @@ const WritePage = ({ postTypeFromHeader }) => {
         setImagePreviews(previews);
     };
 
-    useEffect(() => {
-        if (postTypeFromHeader) {
-            setPostType(postTypeFromHeader);
-        }
-        resetForm();
-    }, [postTypeFromHeader]);
+    const handleDrop = (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files);
+        setImages(files);
+        const previews = files.map(file => URL.createObjectURL(file));
+        setImagePreviews(previews);
+    };
 
-    useEffect(() => {
-        return () => {
-            imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
-        };
-    }, [imagePreviews]);
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
 
     const isFormValid = title && category && parseFloat(price) > 0 && images.length > 0;
 
     return (
         <div className="write-page">
             <div className="menu-bar">
-                <button
-                    className={`post-type-button ${postType === '중고거래' ? 'active' : ''}`}
-                    onClick={() => handlePostTypeChange('중고거래')}
-                >
-                    중고거래
-                </button>
-                <button
-                    className={`post-type-button ${postType === '대리구매' ? 'active' : ''}`}
-                    onClick={() => handlePostTypeChange('대리구매')}
-                >
-                    대리구매
-                </button>
+                <button className={`post-type-button ${postType === '중고거래' ? 'active' : ''}`} onClick={() => handlePostTypeChange('중고거래')}>중고거래</button>
+                <button className={`post-type-button ${postType === '대리구매' ? 'active' : ''}`} onClick={() => handlePostTypeChange('대리구매')}>대리구매</button>
             </div>
 
             {errorMessage && <div className="error-message">{errorMessage}</div>}
 
             <form onSubmit={handleSubmit} className="write-form">
                 <div className="form-group">
-                    <label>이미지 업로드</label>
+                    <label>이미지 업로드 (드래그 앤 드롭 가능)</label>
                     <input
                         type="file"
                         accept="image/*"
                         multiple
                         onChange={handleImageChange}
                         className="file-input"
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
                     />
                 </div>
 
                 <div className="image-preview-container">
                     {imagePreviews.length > 0 && (
                         <div className="image-preview">
-                            <div className="preview-images">
-                                {imagePreviews.map((preview, index) => (
-                                    <img key={index} src={preview} alt={`미리보기 ${index + 1}`} className="preview-image" />
-                                ))}
-                            </div>
+                            {imagePreviews.map((preview, index) => (
+                                <img key={index} src={preview} alt={`미리보기 ${index + 1}`} className="preview-image" />
+                            ))}
                         </div>
                     )}
                 </div>
@@ -179,9 +159,14 @@ const WritePage = ({ postTypeFromHeader }) => {
                 <div className="form-group">
                     <label>{postType === '중고거래' ? '가격' : '수고비'}</label>
                     <input
-                        type="number"
+                        type="text"
                         value={price}
-                        onChange={(e) => setPrice(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*\.?\d*$/.test(value)) {
+                                setPrice(value);
+                            }
+                        }}
                         required
                         className="number-input"
                     />
@@ -220,7 +205,9 @@ const WritePage = ({ postTypeFromHeader }) => {
                     </label>
                 </div>
 
-                <button type="submit" className="submit-button" disabled={!isFormValid}>저장하기</button>
+                <button type="submit" className="submit-button" disabled={!isFormValid || loading}>
+                    {loading ? '저장 중...' : '저장하기'}
+                </button>
             </form>
         </div>
     );
