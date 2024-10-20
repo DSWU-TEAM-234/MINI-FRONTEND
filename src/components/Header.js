@@ -16,7 +16,7 @@ function Header({ openSidebar, university,mainPageColor }) {  // props로 openSi
     <header className="App-header"  style={{ backgroundColor: mainPageColor }}>
       <div className="navbar">
         <div className="menu-icon" onClick={openSidebar}>☰</div> {/* props로 받은 openSidebar 사용 */}
-        <div className="app-name">앱 이름</div>
+        <div className="app-name">UniGoods</div>
         <div className="search-icon">🔍</div>
       </div>
       <div className="links">

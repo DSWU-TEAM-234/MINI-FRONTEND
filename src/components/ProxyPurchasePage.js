@@ -59,10 +59,9 @@ useEffect(() => {
 }, [selectedUniversity]);
 
 
-
   return (
     <div className="proxy-purchase-page">
-
+      <h1 className="goods-list-name">우리 학교 굿즈 모음</h1>
       {/* 물건 정보 섹션 */}
       <div
         className="item-scroll-container"
@@ -79,7 +78,7 @@ useEffect(() => {
 
             return (
               <div key={item.id} className="item-block">
-                <img className="item-name" src={imageUrl} alt={item.item_name} className="item-image" />
+                <img className="item-image" src={imageUrl} alt={item.item_name} />
                 <div className="item-name">{item.item_name}</div>
                 <div className="item-price">{item.price}</div>
               </div>

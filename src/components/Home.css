@@ -23,15 +23,16 @@
 }
 
 .banner {
-background-color: #ffffff;
-padding-top: 20px;
-padding-bottom: 10px;
-}
-.popular-posts {
-background-color: #f5f5f5;
-padding: 20px;
+  background-color: #ffffff;
+  padding-top: 20px;
+  padding-bottom: 10px;
 }
 
-.banner_image{
-  width : 100%;
+.popular-posts {
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+.banner_image {
+  width: 100%;
 }
