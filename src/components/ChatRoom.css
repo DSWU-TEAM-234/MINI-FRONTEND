@@ -239,3 +239,17 @@
   overflow-x: auto;
   font-size: 0.9em;
 }
+
+.avatar-customizer-overlay {
+  position: fixed; /* 고정 위치 */
+  top: 0; /* 화면의 맨 위 */
+  left: 0; /* 화면의 맨 왼쪽 */
+  width: 100%; /* 전체 너비 */
+  height: 100%; /* 전체 높이 */
+  background-color: white; /* 흰색 배경 */
+  display: flex; /* 플렉스 박스 사용 */
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: flex-start; /* 세로 중앙 정렬을 위로 변경 */
+  overflow: auto; /* 스크롤이 필요할 경우 스크롤 가능 */
+  z-index: 1000; /* 다른 요소 위에 표시 */
+}
