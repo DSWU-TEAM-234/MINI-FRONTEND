@@ -5,11 +5,22 @@ import os
 import uuid
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room, leave_room
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
+from datetime import datetime
+import gevent
+import gevent.monkey
+
+gevent.monkey.patch_all()
+
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-CORS(app)
+CORS(app, supports_credentials=True)
 app.secret_key = 'your_secret_key_here'
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # 세션 지속 시간 설정
 
@@ -22,18 +33,14 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# MySQL 연결 설정 (애플리케이션 시작 시)
 def connect_to_db():
-    return pymysql.connect(
+    return psycopg2.connect(
         host='127.0.0.1',
-        user='root',
-        password='root',
-        database='miniproject',
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor
+        user='postgres',
+        password='postgres',
+        database='miniProjects',
+        cursor_factory=RealDictCursor
     )
-
-
 
 
 # 요청이 시작될 때 DB 연결 설정
@@ -44,6 +51,7 @@ def before_request():
         print("데이터베이스 연결에 성공했습니다.")
 
 
+
 # 요청이 끝날 때 DB 연결 종료
 @app.teardown_request
 def teardown_request(exception):
@@ -52,11 +60,10 @@ def teardown_request(exception):
         db_connection.close()
         print("DB 연결 종료")
 
-
-
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
+
 
 # 처음으로 로드될 중고거래 홈 라우트
 @app.route('/', methods=['GET', 'POST'])
@@ -265,10 +272,15 @@ def signup():
 def login():
     print("------------------------------")
     print("로그인 라우트 실행")
+    
     if request.method == 'POST':
-        # 폼 데이터 가져오기
-        email = request.form['email']
-        password = request.form['password']
+        # JSON 형식으로 데이터 가져오기
+        data = request.json
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({"message": "이메일과 비밀번호를 입력하세요."}), 400
         
         try:
             with g.db_connection.cursor() as cursor:
@@ -276,59 +288,40 @@ def login():
                 sql = "SELECT * FROM users WHERE email = %s"
                 cursor.execute(sql, (email,))
                 user = cursor.fetchone()
-                print(user)# 해당 이메일로 등록된 사용자 정보 가져오기
+                print(user)  # 해당 이메일로 등록된 사용자 정보 가져오기
 
                 if not user:
-                    # 이메일이 존재하지 않을 때 오류 메시지 전달
-                    return jsonify({"message": "등록된 사용자 정보가 없습니다."})
+                    return jsonify({"message": "등록된 사용자 정보가 없습니다."}), 404
+                
+                # 비밀번호 해싱 비교
+                if bcrypt.check_password_hash(user['password'], password):
+                    # 로그인 성공
+                    session['user_id'] = user['id']
+                    session['user_nickName'] = user['nick_name']
+                    session['profile_image'] = user['profile_image']
+                    # session['is_accepted'] = user['university_classification'] if user['isAccepted'] == "인증" else "외부인"
+                    session['university_name'] = user['university_classification']
+
+                    # 로그인 성공 시
+                    return jsonify({
+                        'message': "로그인 성공",
+                        'user_id': session['user_id'],
+                        'user_nickName': session['user_nickName'],
+                        'profile_image': session['profile_image'],
+                        'university_name': session['university_name'],
+                    }), 200
+                    
                 else:
-                    # 이메일이 존재하는 경우, 비밀번호 해싱 비교
-                    if bcrypt.check_password_hash(user['password'], password):
-                        # 비밀번호가 일치하면 로그인 성공
-                        session['user_id'] = user['id']  # 세션에 사용자 id 저장 
-                        session['user_nickName'] = user['nick_name']  # 세션에 사용자 닉네임 저장
-                        session['profile_image'] = user['profile_image'] # 세션에 사용자 프로필 이미지 경로 저장
-                        
-                        # 사용자의 isAccepted 여부에 따라 세션에 university_name 저장 (비인증 시 외부인으로)
-                        if user['isAccepted'] == "인증":
-                            session['university_name'] = user['university_classification']
-                        else:
-                            session['university_name'] = "외부인"
+                    return jsonify({"message": "비밀번호가 틀렸습니다. 다시 입력해주세요."}), 400
 
-                        # 사용자의 university_name에 따른 university_logo 가져오기
-                        university_name = session.get('university_name')
-                        sql_logo = "SELECT university_logo FROM university_and_logo WHERE university_name = %s"
-                        cursor.execute(sql_logo, (university_name,))
-                        university_logo = cursor.fetchone()
-
-                        if university_logo:
-                            session['university_logo'] = university_logo['university_logo']
-                        
-                        session.permanent = True  # 영구 세션 사용
-                        print(session['user_id'])
-                        print(session['user_nickName'])
-                        print(session['university_name'])
-                        print(session['university_logo'])
-                        
-                        # 로그인 성공 시
-                        return jsonify({
-            'message': "로그인 성공",
-            'user_id': session['user_id'],
-            'user_nickName' : session['user_nickName'],
-            'profile_image' : session['profile_image'],
-            'university_name' : session['university_name'],
-            'university_logo' : session['university_logo']
-            })
-                        
-                    else:
-                        # 비밀번호가 틀렸을 때 오류 메시지 전달
-                        return jsonify({"message": "비밀번호가 틀렸습니다. 다시 입력해주세요."}), 400
         except pymysql.MySQLError as e:
             print(f"Error: {e}")
             return jsonify({"message": "로그인 중 오류가 발생했습니다."}), 500
 
+    return jsonify({"message": "로그인 페이지에 오신 것을 환영합니다."}), 200
+
 # 로그아웃 라우트
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
     print("------------------------------")
     print("로그아웃 라우트 실행")
@@ -342,6 +335,7 @@ def logout():
     # 로그아웃 완료 메시지 반환
     return jsonify({"message": "로그아웃되었습니다."})
 
+##
 
 # 글 작성 처리 라우트 (공통 라우트)
 @app.route('/write_post', methods=['GET', 'POST'])
@@ -404,9 +398,9 @@ def write_post():
                 
                 # 방금 작성한 게시글의 id 가져오기
                 post_id = cursor.lastrowid  
+                return jsonify({"message": "게시글 작성 완료!", "post_id": post_id}), 201
                 
-                # 글 작성 완료 후 상세 페이지로 리다이렉트
-            return redirect(url_for('post_detail', post_id=post_id))
+  
                 
         except pymysql.MySQLError as e:
             print(f"Error: {e}")
@@ -892,5 +886,449 @@ def get_goods_by_university(university_name):
         print(f"Error: {e}")
         return jsonify({"message": "굿즈 정보를 가져올 수 없습니다."}), 500
 
-if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+# 특정 채팅방의 메시지 가져오기 API
+# 용도: 특정 채팅방 눌렀을 때 해당 채팅방의 대화내역 불러옴. 
+@app.route('/<int:chat_id>', methods=['GET'])
+def get_messages(chat_id):
+    db_connection = connect_to_db()
+    cursor = db_connection.cursor()
+    
+    # messages = Messages.query.filter_by(chat_id=chat_id).all()
+
+    # result = [{
+    #     'id': msg.id,
+    #     'sender_id': msg.sender_id,
+    #     'message_text': msg.message_text,
+    #     'message_type': msg.message_type,
+    #     'created_at': msg.created_at,
+    #     'is_read': msg.is_read
+    # } for msg in messages]
+
+    # return jsonify(result), 200
+    query = "SELECT * FROM messages WHERE chat_id = %s"
+    cursor.execute(query, (chat_id,))
+    messages = cursor.fetchall()
+
+    result = [{
+        'id': msg['id'],
+        'sender_id': msg['sender_id'],
+        'message_text': msg['message_text'],
+        'message_type': msg['message_type'],
+        'created_at': msg['created_at'],
+        'is_read': msg['is_read']
+    } for msg in messages]
+
+    db_connection.close()
+
+    return jsonify(result), 200
+
+
+# 사용자가 포함되어있는 채팅방 불러오는 API 
+# 용도: [글쓰기] 메뉴탭 클릭 시 채팅방 사용자가 포함되어있는 채팅방 목록 보여야된다. 
+@app.route('/chat/list/<int:user_id>', methods=['GET'])
+def get_chattingRooms(user_id):
+    # # 해당 유저가 속한 채팅방 목록 조회
+    # chat_including_member = ChatMember.query.filter_by(user_id=user_id).all()
+    
+    # # 채팅방 id 뽑아내기
+    # chat_rooms = []
+    # for member in chat_including_member:
+    #   chat_room = ChatRoom.query.get(member.chat_id)
+    #   if chat_room:
+    #     chat_rooms.append({
+    #       'chat_id': chat_room.id,
+    #       'name': chat_room.name,
+    #     })
+
+    # return jsonify(chat_rooms), 200
+
+    # 데이터베이스 연결
+    db_connection = connect_to_db()
+    cursor = db_connection.cursor()
+
+    # SQL 쿼리문 작성 (user_id가 포함된 채팅방 조회)
+    query = """
+        SELECT chat_room.id AS chat_id, chat_room.name AS chat_name, users.id AS user_id, users.nick_name
+        FROM chat_member
+        JOIN chat_room ON chat_member.chat_id = chat_room.id
+        JOIN users ON chat_member.user_id = users.id
+        WHERE chat_member.chat_id IN (
+            SELECT chat_id 
+            FROM chat_member 
+            WHERE user_id = %s
+        ) AND users.id != %s
+    """
+    
+    # 메세지를 보내기 전까지는 채팅방 생성을 하먄 안되는거같은디..
+    # [채팅하기] 버튼 클릭
+    # 이때는 DB에 저장을 하지는 말고
+    # 메세지를 보내면 chat_room
+    # 쿼리 실행
+    cursor.execute(query, (user_id, user_id))
+    
+    # 결과 가져오기
+    chat_rooms = cursor.fetchall()
+
+    cursor.close()
+    db_connection.close()
+    
+    # JSON 응답 생성
+    result = []
+    for chat_room in chat_rooms:
+        result.append({
+            'chat_id': chat_room['chat_id'],
+            'name': chat_room['chat_name'],
+            'included_user_id': chat_room['user_id'],
+            'included_nickname': chat_room['nick_name']
+        })
+
+    return jsonify(result), 200
+
+# @app.route('/chat_members/<int:chat_id>', methods=['GET'])
+# def get_chat_members(chat_id):
+#     # 데이터베이스 연결
+#     db_connection = connect_to_db()
+#     cursor = db_connection.cursor()
+
+#     # SQL 쿼리문 작성
+#     query = """
+#         SELECT 
+#             users.id AS user_id, 
+#             users.nick_name, 
+#             chat_room.name AS chat_room_name
+#         FROM chat_member
+#         JOIN users ON chat_member.user_id = users.id
+#         JOIN chat_room ON chat_member.chat_id = chat_room.id
+#         WHERE chat_member.chat_id = %s
+#     """
+    
+#     # 쿼리 실행
+#     cursor.execute(query, (chat_id))
+    
+#     # 결과 가져오기
+#     members = cursor.fetchall()
+
+#     cursor.close()
+#     db_connection.close()
+
+#     # JSON 응답 생성
+#     result = []
+#     for member in members:
+#         result.append({
+#             'user_id': member['user_id'],
+#             'user_nickName': member['nick_name'],
+#             'chat_room_name': member['chat_room_name']  # 추가: 채팅방 이름
+#         })
+
+#     return jsonify(result), 200
+
+      
+@socketio.on("connect")
+def handle_connect():
+    """
+    클라이언트 연결 시 호출
+    """
+    print("Client connected")
+    emit('ping', {'data': 'ping'}, broadcast=True)
+
+@socketio.on('pong')
+def handle_pong():
+    print("Pong received from client")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    """
+    클라이언트 연결 해제 시 호출
+    """
+    print("Client disconnected")
+
+# [채팅하기] 버튼 클릭
+# 일단 채팅방 생성 API 호출
+# ChatRoom 으로 넘어가기 + join 호출로 방 생성. 
+# 해당 글의 사용자 userId를 가지고 들어가야한다. 
+# room_name을 그 글쓴이 이름으로 들고 들거야될듯
+# 자동으로 채팅방에 join 되어야할 듯
+
+
+@socketio.on("join")
+def on_join(data):
+    room_name = data["room"]
+    user_id = data["user_id"]
+
+    print("join 때 들어온 값 확인", room_name, user_id)
+
+    # TODO: user_id 나중에 토큰(?)에 저장된 값으로 불러오게 변경. 
+    # user_id = session.get('user_id')
+    # user_id = 3
+
+    # # 1. 채팅방이 존재하는지 확인
+    # chat_room = ChatRoom.query.filter_by(name=room_name).first()
+
+    # # 2. 채팅방이 없으면 새로 생성
+    # if not chat_room:
+    #     chat_room = ChatRoom(name=room_name)  # 필요에 따라 is_group 설정
+    #     db.session.add(chat_room)
+    #     db.session.commit()
+
+    # # 3. 사용자가 이미 이 방에 참여했는지 확인
+    # chat_member = ChatMember.query.filter_by(chat_id=chat_room.id, user_id=1).first()
+
+    # # 4. 참여X -> ChatMember 테이블에 추가
+    # if not chat_member:
+    #     chat_member = ChatMember(chat_id=chat_room.id, user_id=user_id)
+    #     db.session.add(chat_member)
+    #     db.session.commit()
+
+    # # 5. 클라이언트를 소켓 채팅방에 참여시킴
+    # join_room(room_name)
+
+    # # 6. 클라이언트에게 알림 전송
+    # # TODO: user_id -> 로그인된 유저 id OR 닉네임 불러오기
+    # emit("status", {"msg": f"User {user_id} has joined the room: {room_name}"}, room=room_name)
+    # 데이터베이스 연결
+    db_connection = connect_to_db()
+    cursor = db_connection.cursor()
+
+    # 1. 채팅방이 존재하는지 확인
+    check_chat_room_query = """
+        SELECT id FROM chat_room WHERE name = %s
+    """
+    cursor.execute(check_chat_room_query, (room_name,))
+    chat_room = cursor.fetchone()
+
+    # 2. 채팅방이 없으면 새로 생성
+    if not chat_room:
+        create_chat_room_query = """
+            INSERT INTO chat_room (name) VALUES (%s) RETURNING id
+        """
+        cursor.execute(create_chat_room_query, (room_name,))
+        db_connection.commit()
+        chat_room = cursor.fetchone()
+
+    chat_room_id = chat_room['id']
+
+    # 3. 사용자가 이미 이 방에 참여했는지 확인
+    check_chat_member_query = """
+        SELECT id FROM chat_member WHERE chat_id = %s AND user_id = %s
+    """
+    cursor.execute(check_chat_member_query, (chat_room_id, user_id))
+    chat_member = cursor.fetchone()
+
+    # 4. 참여하지 않았으면 ChatMember 테이블에 추가
+    if not chat_member:
+        insert_chat_member_query = """
+            INSERT INTO chat_member (chat_id, user_id) VALUES (%s, %s)
+        """
+        cursor.execute(insert_chat_member_query, (chat_room_id, user_id))
+        db_connection.commit()
+
+    # 5. 클라이언트를 소켓 채팅방에 참여시킴
+    join_room(room_name)
+
+    # 6. 클라이언트에게 알림 전송
+    emit("status", {"msg": f"User {user_id} has joined the room: {room_name}"}, room=room_name)
+
+    # 데이터베이스 연결 해제
+    cursor.close()
+    db_connection.close()
+
+
+
+@socketio.on("leave")
+def on_leave(data):
+    """
+    클라이언트가 채팅방을 나갈 때 호출되는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    leave_room(room)
+    emit("status", {"msg": f"User has left the room: {room}"}, room=room)
+
+
+@socketio.on("chat")
+def handle_chat(data):
+    """
+    채팅 메시지를 처리하는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'message', 'from' 키를 포함해야 합니다.
+    """
+    # TODO: 항목 수정 필요
+    # TODO: 나중에 로그인까지 합쳐서 senderid 알아서 저장되게 해야될 듯. 
+    # data["from"]은.. 소켓 아이디..? 있어야하나?
+
+    # user_id = session.get('user_id')
+    # if user_id is None:
+    #   print("User ID is not found in the session")
+    #   return  # 또는 적절한 에러 처리
+    # user_id = 3
+
+    room_name = data["room"]  # 클라이언트로부터 받은 room (이름)
+    message = data["message"]
+    user_id = data.get("from")
+
+    print("chat 소켓 값 확인: ", room_name)
+    print("user_id 값 확인: ", user_id)
+
+    # # 채팅방 이름(room_name)을 바탕으로 DB에서 chat_id 조회
+    # chat_room = ChatRoom.query.filter_by(name=room_name).first()
+
+    # if chat_room:
+    #     chat_id = chat_room.id  # chat_id를 얻음
+    # else:
+    #     # 해당 room이 없을 경우 처리 (예: 에러 메시지 반환)
+    #     print("채팅방을 찾을 수 없습니다.")
+    #     return
+
+    # # 메시지를 DB에 저장
+    # message = Messages(
+    #     # TODO: 채팅방 id, 발신자 id 나중에 자동으로 불러와지게 해야됨.
+    #     chat_id=chat_id,
+    #     sender_id=user_id,
+    #     message_text=message,
+    #     message_type='text',  # 메시지 유형 (예: 텍스트)
+    #     created_at=datetime.now()
+    # )
+    # db.session.add(message)
+    # db.session.commit()
+
+    # # json 타입으로 직렬화하기 
+    # message_data = {
+    #     "type": "chat",
+    #     "message": message.message_text,  
+    #     "from": from_id,
+    #     "created_at": message.created_at.strftime('%Y-%m-%d %H:%M:%S') 
+    # }
+
+    # # 클라이언트로 메시지 전송
+    # emit("chat", message_data, room=room_name)
+    # print(data)
+    # 데이터베이스 연결
+    db_connection = connect_to_db()
+    cursor = db_connection.cursor()
+
+    # 채팅방 이름(room_name)을 바탕으로 DB에서 chat_id 조회
+    check_chat_room_query = """
+        SELECT id FROM chat_room WHERE name = %s
+    """
+    cursor.execute(check_chat_room_query, (room_name,))
+    chat_room = cursor.fetchone()
+
+    if chat_room:
+        chat_id = chat_room['id']  # chat_id를 얻음
+    else:
+        # 해당 room이 없을 경우 처리 (예: 에러 메시지 반환)
+        print("채팅방을 찾을 수 없습니다.")
+        cursor.close()
+        db_connection.close()
+        return
+
+    # 메시지를 DB에 저장
+    insert_message_query = """
+        INSERT INTO messages (chat_id, sender_id, message_text, message_type, created_at)
+        VALUES (%s, %s, %s, %s, %s) RETURNING id
+    """
+    cursor.execute(insert_message_query, (chat_id, user_id, message, 'text', datetime.now()))
+    db_connection.commit()
+    
+    # 새로 저장된 메시지 ID 가져오기
+    message_id= cursor.fetchone()['id']
+
+    # json 타입으로 직렬화하기 
+    message_data = {
+        "type": "chat",
+        "message": message,
+        "from": user_id,
+        "created_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),  # 현재 시간
+        "message_id": message_id  # 메시지 ID 추가
+    }
+
+    # 클라이언트로 메시지 전송
+    emit("chat", message_data, room=room_name)
+    print(data)
+
+    # 데이터베이스 연결 해제
+    cursor.close()
+    db_connection.close()
+
+@socketio.on("location")
+def handle_location(data):
+    """
+    위치 정보를 처리하는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'location', 'from' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    location = data["location"]
+    from_id = data["from"]
+    emit(
+        "location",
+        {"type": "location", "location": location, "from": from_id},
+        room=room,
+    )
+
+
+@socketio.on("real_time_location")
+def handle_real_time_location(data):
+    """
+    실시간 위치 정보를 처리하는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'location', 'from' 키를 포함해야 합니다.
+    """
+    room = data["room"]
+    location = data["location"]
+    from_id = data["from"]
+    print(f"Received real_time_location from {from_id} with location {location}")
+
+    if not from_id:
+        print("Error: 'from' field is missing in data")
+        return
+        
+    timestamp = int(time.time() * 1000)  # 현재 시간을 밀리초로 변환
+    emit(
+        "real_time_location",
+        {
+            "type": "real_time_location",
+            "location": location,
+            "from": from_id,
+            "timestamp": timestamp,
+        },
+        room=room,
+        include_self=False,  # 자신을 제외한 다른 클라이언트에게만 전송
+    )
+
+# 아바타 뿌려주는 웹소켓 작성해야하겠지?
+# 그냥 따로 여기다가 만들어주는게 나을 듯
+@socketio.on("send_avatar_custom")
+def handle_send_avatar_custom(data):
+    """
+    아바타 이미지 보내는 이벤트 핸들러입니다.
+
+    Args:
+        data (dict): 클라이언트로부터 받은 데이터. 'room', 'location', 'from' 키를 포함해야 합니다.
+    """
+
+    room = data['room']
+    image_data = data['imageData']
+    sender = data['from']  # 보낸 사람 정보
+
+    emit(
+        "send_avatar_custom",
+        {
+          'imageData': image_data,
+          'from': sender,
+          'type': 'avatar',  # type 필드 추가
+        },
+        room=room,
+        # include_self=False,  # 자신을 제외한 다른 클라이언트에게만 전송
+    )
+    print(data)
+  
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True)
+    app.run(debug=True)
