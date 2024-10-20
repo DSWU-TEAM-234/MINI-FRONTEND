@@ -1,18 +1,83 @@
-import React, { useState, useRef, useEffect  } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './ChatRoom.css';
-import useWebSocket from "../hooks/useWebSocket"
-import useChatRoom from "../hooks/useChatRoom"
-import Modal from "./Modal"
-import MessageBubble from "./MessageBubble"
-import MapContainer from "./MapContainer"
-import ChatHeader from "./ChatHeader"
-import ChatInput from "./ChatInput"
-import BottomMenu from "./BottomMenu"
+import useWebSocket from "../hooks/useWebSocket";
+import useChatRoom from "../hooks/useChatRoom";
+import Modal from "./Modal";
+import MessageBubble from "./MessageBubble";
+import MapContainer from "./MapContainer";
+import ChatHeader from "./ChatHeader";
+import ChatInput from "./ChatInput";
+import BottomMenu from "./BottomMenu";
+import AvatarCustomizer from "../components/AvaterCustomizer"
+import axios from 'axios';
+
+const chatRooms = {
+  1: { nickname: '사용자1' },
+  2: { nickname: '사용자2' },
+};
+
+const modalButtons = (isLoading, handleConfirmLocation, handleCloseModal) => [
+  {
+    text: "확인했어요",
+    onClick: handleConfirmLocation,
+    className: "confirm-button",
+    disabled: isLoading,
+  },
+  {
+    text: "안할래요",
+    onClick: handleCloseModal,
+    className: "cancel-button",
+  },
+];
+
+const mapModalButtons = (handleShareLocation, handleCloseMapModal) => [
+  {
+    text: "위치 공유하기",
+    onClick: handleShareLocation,
+    className: "share-location-button",
+  },
+  {
+    text: "닫기",
+    onClick: handleCloseMapModal,
+    className: "close-button",
+  },
+];
+
+const viewLocationModalButtons = (handleCloseViewLocationModal) => [
+  {
+    text: "닫기",
+    onClick: handleCloseViewLocationModal,
+    className: "close-button",
+  },
+];
+
 
 function ChatRoom() {
-  const { chatRoomId } = useParams(); // URL에서 chatRoomId를 가져옴
+  const { chatRoomId } = useParams();
   const navigate = useNavigate();
+
+  // 아바타 모달 상태 관리
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleShareAvatar = (imageData) => {
+    // 커스터마이징된 아바타 이미지를 웹소켓을 통해 전송
+    sendAvatarImage(imageData);
+    setIsAvatarModalOpen(false); // 모달 닫기
+  };
+
+    // 이미지 클릭 시 모달 열기
+  const handleImageClick = (imageData) => {
+    setSelectedImage(imageData);  // 클릭한 이미지를 설정
+    setIsImageModalOpen(true);    // 모달 열기
+  };
+
+  const handleCloseImageModal = () => {
+    setIsImageModalOpen(false);
+    setSelectedImage(null);       // 모달 닫을 때 이미지 초기화
+  };
 
   const {
     messages,
@@ -20,7 +85,8 @@ function ChatRoom() {
     sendLocation,
     sendRealTimeLocation,
     realTimeLocation,
-  } = useWebSocket(chatRoomId)
+    sendAvatarImage
+  } = useWebSocket(chatRoomId);
 
   const {
     isMenuOpen,
@@ -43,83 +109,32 @@ function ChatRoom() {
     handleCloseMapModal,
     handleCloseViewLocationModal,
     setOtherRealTimeLocation,
-  } = useChatRoom(chatRoomId, sendMessage, sendLocation, sendRealTimeLocation)
+  } = useChatRoom(chatRoomId, sendMessage, sendLocation, sendRealTimeLocation, sendAvatarImage);
 
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (realTimeLocation) {
-      setOtherRealTimeLocation(realTimeLocation.location)
+      setOtherRealTimeLocation(realTimeLocation.location);
     }
-  }, [realTimeLocation, setOtherRealTimeLocation])
+  }, [realTimeLocation, setOtherRealTimeLocation]);
 
-  const modalButtons = [
-    {
-      text: "확인했어요",
-      onClick: handleConfirmLocation,
-      className: "confirm-button",
-      disabled: isLoading,
-    },
-    {
-      text: "안할래요",
-      onClick: handleCloseModal,
-      className: "cancel-button",
-    },
-  ]
-
-  const mapModalButtons = [
-    {
-      text: "위치 공유하기",
-      onClick: handleShareLocation,
-      className: "share-location-button",
-    },
-    {
-      text: "닫기",
-      onClick: handleCloseMapModal,
-      className: "close-button",
-    },
-  ]
-
-  const viewLocationModalButtons = [
-    {
-      text: "닫기",
-      onClick: handleCloseViewLocationModal,
-      className: "close-button",
-    },
-  ]
-
-  const chatRooms = {
-    1: { nickname: '사용자1' },
-    2: { nickname: '사용자2' },
-    // DB에서 가져온 데이터로 교체 가능
-  };
-
-
-  const room = chatRooms[chatRoomId] || { nickname: '알 수 없는 사용자' };
-
-
-  //메세지 올때 화면 내려가게
   const messageEndRef = useRef(null);
-  
+
   useEffect(() => {
     messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const handleDressUpClick = () => {
-    navigate('/dress-up-game'); // DressUpGame으로 이동
-  };
 
   return (
     <div className="chat-room-detail">
       <ChatHeader chatRoomId={chatRoomId} />
 
       <div className="chat-content">
-        {/* 메시지 목록이 들어갈 부분 */}
         {messages.map((msg, index) => (
           <MessageBubble
-          key={index}
-          message={msg}
-          onViewLocation={handleViewLocation}
-        />
+            key={index}
+            message={msg}
+            onViewLocation={handleViewLocation}
+            onImageClick={handleImageClick}
+          />
         ))}
         <div ref={messageEndRef}></div>
       </div>
@@ -132,13 +147,15 @@ function ChatRoom() {
         isMenuOpen={isMenuOpen}
       />
       
-      
       <BottomMenu isMenuOpen={isMenuOpen} setIsModalOpen={setIsModalOpen} />
+
+      <BottomMenu isMenuOpen={isMenuOpen} setIsModalOpen={setIsModalOpen} 
+        setIsAvatarModalOpen={setIsAvatarModalOpen}  />
       
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        buttons={modalButtons}
+        buttons={modalButtons(isLoading, handleConfirmLocation, handleCloseModal)}
       >
         {isLoading ? (
           <p>위치 불러오는 중...</p>
@@ -150,7 +167,7 @@ function ChatRoom() {
       <Modal
         isOpen={isMapModalOpen}
         onClose={handleCloseMapModal}
-        buttons={mapModalButtons}
+        buttons={mapModalButtons(handleShareLocation, handleCloseMapModal)}
       >
         <MapContainer title="내 위치 인증하기" myLocation={location} />
       </Modal>
@@ -158,7 +175,7 @@ function ChatRoom() {
       <Modal
         isOpen={viewLocationModal.isOpen}
         onClose={handleCloseViewLocationModal}
-        buttons={viewLocationModalButtons}
+        buttons={viewLocationModalButtons(handleCloseViewLocationModal)}
       >
         <MapContainer
           title="실시간 위치"
@@ -166,8 +183,30 @@ function ChatRoom() {
           otherLocation={otherRealTimeLocation}
         />
       </Modal>
+
+
+      {isAvatarModalOpen && (
+        <div className="avatar-customizer-overlay">
+          <AvatarCustomizer onShareAvatar={handleShareAvatar} />
+        </div>
+      )}
+
+      {/* 이미지 클릭 모달 */}
+      <Modal
+        isOpen={isImageModalOpen}
+        onClose={handleCloseImageModal}
+        buttons={[
+          {
+            text: "닫기",
+            onClick: handleCloseImageModal,
+            className: "close-button",
+          },
+        ]}
+      >
+        <img src={selectedImage} alt="User Avatar Enlarged" className="modal-avatar-image" />
+      </Modal>
     </div>
-  )
+  );
 }
 
 export default ChatRoom;
